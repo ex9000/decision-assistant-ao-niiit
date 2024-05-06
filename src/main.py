@@ -1,19 +1,30 @@
 import flet as ft
+from square_root import solve
 
 
-def main(page: ft.Page):
+def window(page: ft.Page):
+    counter = 0
+
     page.title = "Flet counter example"
     page.vertical_alignment = ft.MainAxisAlignment.CENTER
     page.theme_mode = ft.ThemeMode.DARK
 
-    txt_number = ft.TextField(value="0", text_align=ft.TextAlign.RIGHT, width=100)
+    txt_number = ft.TextField(value="0")
 
     def minus_click(e):
-        txt_number.value = str(int(txt_number.value) - 1)
+        nonlocal counter
+        counter -= 1
+
+        _, root = solve(1, 0, -counter)
+        txt_number.value = str(root)
         page.update()
 
     def plus_click(e):
-        txt_number.value = str(int(txt_number.value) + 1)
+        nonlocal counter
+        counter += 1
+
+        _, root = solve(1, 0, -counter)
+        txt_number.value = str(root)
         page.update()
 
     page.add(
@@ -28,4 +39,9 @@ def main(page: ft.Page):
     )
 
 
-ft.app(main)
+def main():
+    ft.app(window)
+
+
+if __name__ == "__main__":
+    main()
