@@ -38,18 +38,16 @@ class Fuzzy(ABC):
     def __truediv__(self, other: number) -> "Fuzzy": ...
 
 
-class TriangleSymmetric(Fuzzy):
+class TriangleSymmetric[T: Probability](Fuzzy):
     __slots__ = "left", "right", "mode", "shift", "scale"
 
-    def __init__(
-        self, mode, fuzziness, shift: Probability = None, scale: Probability = None
-    ):
+    def __init__(self, mode, fuzziness, shift: T = None, scale: T = None):
         self.left = mode - fuzziness / 2
         self.right = mode + fuzziness / 2
         self.mode = mode
 
-        self.shift: Probability | None = shift
-        self.scale: Probability | None = scale
+        self.shift: T | None = shift
+        self.scale: T | None = scale
 
     @property
     def fuzziness(self):
