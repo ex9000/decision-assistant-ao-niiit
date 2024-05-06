@@ -1,3 +1,1 @@
-from typing import TypeAlias
-
-number: TypeAlias = int | float
+number = int | float

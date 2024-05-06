@@ -38,26 +38,22 @@ class Fuzzy(ABC):
     def __truediv__(self, other: number) -> "Fuzzy": ...
 
 
-class TriangleSymmetric(Fuzzy):
+class TriangleSymmetric[T: Probability](Fuzzy):
     __slots__ = "left", "right", "mode", "shift", "scale"
 
-    def __init__(
-        self, mode, fuzziness, shift: Probability = None, scale: Probability = None
-    ):
+    def __init__(self, mode, fuzziness, shift: T = None, scale: T = None):
         self.left = mode - fuzziness / 2
         self.right = mode + fuzziness / 2
         self.mode = mode
 
-        self.shift: Probability | None = shift
-        self.scale: Probability | None = scale
+        self.shift: T | None = shift
+        self.scale: T | None = scale
 
     @property
     def fuzziness(self):
         return self.right - self.left
 
-    def __mul__(self, other: Union[number, Probability]) -> "Fuzzy":
-        assert isinstance(other, Probability) or isinstance(other, number)
-
+    def __mul__(self, other: Union[number, T]) -> "TriangleSymmetric":
         if isinstance(other, Probability):
             assert self.scale is None and self.shift is None
             return TriangleSymmetric(self.mode, self.fuzziness, self.shift, other)
@@ -68,12 +64,12 @@ class TriangleSymmetric(Fuzzy):
                 self.mode * other, self.fuzziness * abs(other), shift, self.scale
             )
 
-    def __rmul__(self, other: Union[number, Probability]) -> "Fuzzy":
+        return NotImplemented
+
+    def __rmul__(self, other: Union[number, T]) -> "TriangleSymmetric":
         return self.__mul__(other)
 
-    def __add__(self, other: Union[number, Probability]) -> "Fuzzy":
-        assert isinstance(other, Probability) or isinstance(other, number)
-
+    def __add__(self, other: Union[number, T]) -> "TriangleSymmetric":
         if isinstance(other, Probability):
             assert self.shift is None
             return TriangleSymmetric(self.mode, self.fuzziness, other, self.scale)
@@ -84,22 +80,24 @@ class TriangleSymmetric(Fuzzy):
                 self.mode + other, self.fuzziness, self.shift, self.scale
             )
 
-    def __radd__(self, other: Union[number, Probability]) -> "Fuzzy":
+        return NotImplemented
+
+    def __radd__(self, other: Union[number, T]) -> "TriangleSymmetric":
         return self.__add__(other)
 
-    def __sub__(self, other: Union[number, Probability]) -> "Fuzzy":
+    def __sub__(self, other: Union[number, T]) -> "TriangleSymmetric":
         return self + (-other)
 
-    def __rsub__(self, other: Union[number, Probability]) -> "Fuzzy":
+    def __rsub__(self, other: Union[number, T]) -> "TriangleSymmetric":
         return -self + other
 
-    def __neg__(self) -> "Fuzzy":
+    def __neg__(self) -> "TriangleSymmetric":
         return self * -1
 
-    def __truediv__(self, other: number) -> "Fuzzy":
+    def __truediv__(self, other: number) -> "TriangleSymmetric":
         return self * (1 / other)
 
-    def _produce_random(self, factor: float) -> Probability:
+    def _produce_random(self, factor: float) -> T:
         assert self.shift is not None or self.scale is not None
 
         if self.scale is None:
@@ -111,11 +109,11 @@ class TriangleSymmetric(Fuzzy):
         return self.shift + self.scale * factor
 
     @overload
-    def to_random(self, alpha: float, measure: Measure) -> Probability: ...
+    def to_random(self, alpha: float, measure: Measure) -> T: ...
     @overload
-    def to_random(self, beta: float) -> Probability: ...
+    def to_random(self, beta: float) -> T: ...
 
-    def to_random(self, alpha: float, measure: Measure = None) -> Probability:
+    def to_random(self, alpha: float, measure: Measure = None) -> T:
         match measure:
             case None | Measure.POSSIBILITY:
                 beta = alpha
