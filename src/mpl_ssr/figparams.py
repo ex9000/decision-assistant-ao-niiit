@@ -30,7 +30,7 @@ def final_patch(ax: Axes, /, legend=False, axes=False):
 
     if axes:
         ax.set_xlabel(K_EFFECTIVENESS.title())
-        ax.set_ylabel(K_EFFECTIVENESS.title())
+        ax.set_ylabel(K_POSSIBILITY.title())
 
     if legend:
         ax.legend(loc="upper right", bbox_to_anchor=(1.0, 0.95))
