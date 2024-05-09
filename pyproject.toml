@@ -10,6 +10,8 @@ python = "^3.12"
 flet = "^0.22.0"
 matplotlib = "^3.8.4"
 scipy = "^1.13.0"
+numpy = "^1.26.4"
+pillow = "^10.3.0"
 
 
 [build-system]
