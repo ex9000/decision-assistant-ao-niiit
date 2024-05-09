@@ -1,6 +1,6 @@
 import flet as ft
 
-from square_root import solve
+from src.square_root import solve
 
 
 def window(page: ft.Page):

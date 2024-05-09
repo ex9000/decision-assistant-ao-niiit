@@ -1,1 +1,1 @@
-type number = int | float
+number = int | float

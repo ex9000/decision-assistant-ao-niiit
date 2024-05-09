@@ -30,14 +30,24 @@ class Probability(ABC):
 class Normal(Probability):
     __slots__ = "mu", "sigma2"
 
+    def __new__(cls, mean: number = 0, variance: number = 1) -> "Probability":
+        if variance == 0:
+            return mean
+
+        x = super().__new__(cls)
+        x.__init__(mean, variance)
+        return x
+
     def __init__(self, mean: number = 0, variance: number = 1):
         assert variance > 0
         self.mu = mean
         self.sigma2 = variance
 
     def __mul__(self, other: number) -> "Normal":
-        assert isinstance(other, number)
-        return Normal(self.mu * other, self.sigma2 * abs(other)**2)
+        if isinstance(other, number):
+            return Normal(self.mu * other, self.sigma2 * abs(other) ** 2)
+        else:
+            return NotImplemented
 
     def __rmul__(self, other: number) -> "Normal":
         return self.__mul__(other)
