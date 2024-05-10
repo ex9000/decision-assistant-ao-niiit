@@ -29,7 +29,7 @@ def plot_bledge(ax: Axes, ssr: TriangleSymmetric[Normal], precision=256):
     left = ssr.to_random(-1)
     right = ssr.to_random(1)
 
-    xmin, xmax = left.mu - 3 * left.sigma2 ** 0.5, right.mu + 3 * right.sigma2 ** 0.5
+    xmin, xmax = left.mu - 2 * left.sigma2 ** 0.5, right.mu + 2 * right.sigma2 ** 0.5
 
     ys = np.linspace(0, 1, precision)
     xs = np.linspace(xmin, xmax, precision)
@@ -49,3 +49,6 @@ def plot_bledge(ax: Axes, ssr: TriangleSymmetric[Normal], precision=256):
     source = np.meshgrid(xs, ys)
 
     ax.pcolormesh(*source, data, shading="gouraud", cmap="gray_r")
+
+    # hack to expand y-limit
+    ax.plot((xmin, xmax), (-0.01, 1.01), alpha=0)

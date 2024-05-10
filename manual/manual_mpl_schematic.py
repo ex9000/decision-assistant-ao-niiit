@@ -9,9 +9,9 @@ from src.probability import Normal
 def main():
     switch_lang(Lang.RU)
 
-    a = Normal(7, 1 / 9)
-    delta = Normal(1, 0.01)
-    X = TriangleSymmetric(-2, 4)
+    a = Normal(7, 1)
+    delta = Normal(10, 16)
+    X = TriangleSymmetric(1, 4)
 
     fig, ax = NORMAL_FIG_PARAMS.init_ax_fig()
 

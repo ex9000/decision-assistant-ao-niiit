@@ -75,6 +75,9 @@ class TriangleSymmetric[T: Probability](Fuzzy):
             return TriangleSymmetric(self.mode, self.fuzziness, other, self.scale)
 
         if isinstance(other, number):
+            if np.isclose(other, 0, atol=1e-8):
+                return self
+
             assert self.scale is None
             return TriangleSymmetric(
                 self.mode + other, self.fuzziness, self.shift, self.scale
