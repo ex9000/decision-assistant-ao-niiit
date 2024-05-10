@@ -1,46 +1,99 @@
 import numpy as np
 from matplotlib.axes import Axes
-from matplotlib.patches import Polygon
+from scipy.stats import rv_continuous
 
-from src.fuzzy import TriangleSymmetric
+from src.fuzzy import TriangleSymmetric, Measure
 from src.lang import *
 from src.probability import Normal
 
 
-def plot_schematic(ax: Axes, ssr: TriangleSymmetric[Normal]):
-    left = ssr.to_random(-1)
+def _normalized(xs, dist: rv_continuous):
+    v = dist.pdf(xs)
+    return v / v.max()
+
+
+def plot_schematic(ax: Axes, ssr: TriangleSymmetric[Normal], precision=256):
     mid = ssr.to_random(0)
+
+    left = ssr.to_random(-1)
     right = ssr.to_random(1)
 
-    l, p, r = left.mu, mid.mu, right.mu
-    u, lu, ru = 2 * np.sqrt([mid.sigma2, left.sigma2, right.sigma2])
+    xmin, xmax = left.mu - 2 * left.sigma2 ** 0.5, right.mu + 2 * right.sigma2 ** 0.5
+    xs = np.linspace(xmin, xmax, precision)
+    ys = np.linspace(0, 1, precision)
+    source = np.meshgrid(xs, ys)
 
-    y1 = np.array([[l - lu, 0], [l + lu, 0], [p + u, 1], [p - u, 1]])
-    lp = Polygon(y1, facecolor="#cccccc")
-    y2 = np.array([[r - ru, 0], [r + ru, 0], [p + u, 1], [p - u, 1]])
-    rp = Polygon(y2, facecolor="#cccccc")
+    pess = np.stack(
+        [
+            _normalized(xs, ssr.to_random(alpha, Measure.NECESSITY).to_scipy_stat())
+            for alpha in ys
+        ]
+    )
 
-    ax.add_patch(lp)
-    ax.add_patch(rp)
+    opt = np.stack(
+        [
+            _normalized(
+                xs, ssr.to_random(1 - alpha, Measure.POSSIBILITY).to_scipy_stat()
+            )
+            for alpha in ys
+        ]
+    )
 
+    background_level = 0.15
+    contour_lines_level = 0.3
+
+    # hack to expand y-limit
+    ax.plot((xmin, xmax), (-0.01, 1.01), alpha=0)
+
+    # background
+    ax.contourf(
+        *source,
+        np.maximum(pess, opt),
+        cmap="Greys",
+        levels=(background_level, 1),
+        antialiased=True,
+        alpha=0.5,
+    )
+
+    # blue contour
+    ax.contour(
+        *source,
+        pess,
+        colors=("#5555ff",),
+        linestyles="--",
+        levels=(contour_lines_level, 1),
+    )
+
+    # fake line for label in legend
     ax.plot(
-        [l - 0.8 * lu, p - 0.8 * u, p + 0.8 * u, l + 0.8 * lu],
-        [0, 1, 1, 0],
+        [xmin, xmax],
+        [1, 1],
         linestyle="--",
-        linewidth=0.7,
         c="#5555ff",
         label=K_PESSIMISTIC,
     )
+
+    # red contour
+    ax.contour(
+        *source,
+        opt,
+        colors=("#ff5555",),
+        linestyles="--",
+        levels=(contour_lines_level, 1),
+    )
+
+    # fake line for label in legend
     ax.plot(
-        [r - 0.8 * ru, p - 0.8 * u, p + 0.8 * u, r + 0.8 * ru],
-        [0, 1, 1, 0],
+        [xmin, xmax],
+        [1, 1],
         linestyle="--",
-        linewidth=0.7,
         c="#ff5555",
         label=K_OPTIMISTIC,
     )
+
+    # median line
     ax.plot(
-        [l, p, r],
+        [left.mu, mid.mu, right.mu],
         [0, 1, 0],
         linestyle=":",
         linewidth=2,
