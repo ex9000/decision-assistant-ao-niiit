@@ -15,16 +15,16 @@ def plot_schematic(ax: Axes, ssr: TriangleSymmetric[Normal]):
     l, p, r = left.mu, mid.mu, right.mu
     u, lu, ru = 3 * np.sqrt([mid.sigma2, left.sigma2, right.sigma2])
 
-    y1 = np.array([[p - l - lu, 0], [p - l + lu, 0], [p + u, 1], [p - u, 1]])
-    lp = Polygon(y1, facecolor="#aaffcc")
-    y2 = np.array([[p + r - ru, 0], [p + r + ru, 0], [p + u, 1], [p - u, 1]])
-    rp = Polygon(y2, facecolor="#aaffcc")
+    y1 = np.array([[l - lu, 0], [l + lu, 0], [p + u, 1], [p - u, 1]])
+    lp = Polygon(y1, facecolor="#cccccc")
+    y2 = np.array([[r - ru, 0], [r + ru, 0], [p + u, 1], [p - u, 1]])
+    rp = Polygon(y2, facecolor="#cccccc")
 
     ax.add_patch(lp)
     ax.add_patch(rp)
 
     ax.plot(
-        [p - l - 0.8 * lu, p - 0.8 * u, p + r - 0.8 * ru],
+        [l - 0.8 * lu, p - 0.8 * u, r - 0.8 * ru],
         [0, 1, 0],
         linestyle="--",
         linewidth=0.7,
@@ -32,7 +32,7 @@ def plot_schematic(ax: Axes, ssr: TriangleSymmetric[Normal]):
         label=K_PESSIMISTIC,
     )
     ax.plot(
-        [p - l + 0.8 * lu, p + 0.8 * u, p + r + 0.8 * ru],
+        [l + 0.8 * lu, p + 0.8 * u, r + 0.8 * ru],
         [0, 1, 0],
         linestyle="--",
         linewidth=0.7,
@@ -40,7 +40,7 @@ def plot_schematic(ax: Axes, ssr: TriangleSymmetric[Normal]):
         label=K_OPTIMISTIC,
     )
     ax.plot(
-        [p - l, p, p + r],
+        [l, p, r],
         [0, 1, 0],
         linestyle=":",
         linewidth=2,

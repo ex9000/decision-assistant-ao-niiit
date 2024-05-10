@@ -25,7 +25,7 @@ NORMAL_FIG_PARAMS = FigParams()
 WIDE_FIG_PARAMS = FigParams((12.0, 4.0))
 
 
-def final_patch(ax: Axes, /, legend=False, axes=False):
+def final_patch(ax: Axes, /, legend=False, axes=False, grid=True):
     ax.axhline(y=1, linestyle="-", c="black", linewidth=2.0)
 
     if axes:
@@ -35,7 +35,9 @@ def final_patch(ax: Axes, /, legend=False, axes=False):
     if legend:
         ax.legend(loc="upper right", bbox_to_anchor=(1.0, 0.95))
 
-    ax.grid()
+    if grid:
+        ax.grid()
+
     ax.relim()
 
 
