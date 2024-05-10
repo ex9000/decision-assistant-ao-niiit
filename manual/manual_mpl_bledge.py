@@ -15,11 +15,6 @@ def main():
 
     fig, ax = NORMAL_FIG_PARAMS.init_ax_fig()
 
-    # plot_bledge(ax, a + delta * X)
-    # final_patch(ax)
-
-    # ax.clear()
-    #
     plot_bledge(ax, a + delta * X)
     final_patch(ax, legend=False, axes=True)
 

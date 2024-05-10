@@ -4,6 +4,7 @@ from scipy.stats import rv_continuous
 
 from src.fuzzy import TriangleSymmetric, Measure
 from src.lang import *
+from src.mpl_ssr.plotting import prepare_plot
 from src.probability import Normal
 
 
@@ -13,15 +14,9 @@ def _normalized(xs, dist: rv_continuous):
 
 
 def plot_schematic(ax: Axes, ssr: TriangleSymmetric[Normal], precision=256):
+    left, right, source, xmax, xmin, xs, ys = prepare_plot(ax, precision, ssr)
+
     mid = ssr.to_random(0)
-
-    left = ssr.to_random(-1)
-    right = ssr.to_random(1)
-
-    xmin, xmax = left.mu - 2 * left.sigma2 ** 0.5, right.mu + 2 * right.sigma2 ** 0.5
-    xs = np.linspace(xmin, xmax, precision)
-    ys = np.linspace(0, 1, precision)
-    source = np.meshgrid(xs, ys)
 
     pess = np.stack(
         [
@@ -41,9 +36,6 @@ def plot_schematic(ax: Axes, ssr: TriangleSymmetric[Normal], precision=256):
 
     background_level = 0.15
     contour_lines_level = 0.3
-
-    # hack to expand y-limit
-    ax.plot((xmin, xmax), (-0.01, 1.01), alpha=0)
 
     # background
     ax.contourf(

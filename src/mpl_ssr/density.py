@@ -3,6 +3,7 @@ from matplotlib.axes import Axes
 from scipy.stats import rv_continuous
 
 from src.fuzzy import TriangleSymmetric, Measure
+from src.mpl_ssr.plotting import prepare_plot
 from src.probability import Normal
 
 
@@ -17,13 +18,7 @@ def _evaluate(xs, left: rv_continuous, right: rv_continuous):
 
 
 def plot_density(ax: Axes, ssr: TriangleSymmetric[Normal], precision=256):
-    left = ssr.to_random(-1)
-    right = ssr.to_random(1)
-
-    xmin, xmax = left.mu - 2 * left.sigma2 ** 0.5, right.mu + 2 * right.sigma2 ** 0.5
-
-    xs = np.linspace(xmin, xmax, precision)
-    ys = np.linspace(0, 1, precision)
+    left, right, source, xmax, xmin, xs, ys = prepare_plot(ax, precision, ssr)
 
     pairs = [
         (
@@ -35,11 +30,6 @@ def plot_density(ax: Axes, ssr: TriangleSymmetric[Normal], precision=256):
 
     data = np.stack([_evaluate(xs, left, right) for left, right in pairs])
 
-    source = np.meshgrid(xs, ys)
-
-    ax.pcolormesh(*source, data, shading="gouraud", cmap="gray_r")
+    ax.pcolormesh(*source, data, shading="gouraud", cmap="Greys")
     cs = ax.contour(*source, data, cmap="plasma")
     ax.clabel(cs, inline=1, fontsize=10)
-
-    # hack to expand y-limit
-    ax.plot((xmin, xmax), (-0.01, 1.01), alpha=0)

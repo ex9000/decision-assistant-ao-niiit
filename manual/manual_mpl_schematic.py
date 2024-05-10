@@ -16,11 +16,6 @@ def main():
     fig, ax = NORMAL_FIG_PARAMS.init_ax_fig()
 
     plot_schematic(ax, a + delta * X)
-    final_patch(ax)
-
-    ax.clear()
-
-    plot_schematic(ax, a + delta * X)
     final_patch(ax, legend=True, axes=True)
 
     im = fig2pil(fig)

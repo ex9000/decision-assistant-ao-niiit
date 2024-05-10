@@ -3,6 +3,7 @@ from matplotlib.axes import Axes
 from scipy.stats import rv_continuous
 
 from src.fuzzy import TriangleSymmetric, Measure
+from src.mpl_ssr.plotting import prepare_plot
 from src.probability import Normal
 
 
@@ -26,13 +27,7 @@ def _evaluate(xs, y, left: rv_continuous, right: rv_continuous):
 
 
 def plot_bledge(ax: Axes, ssr: TriangleSymmetric[Normal], precision=256):
-    left = ssr.to_random(-1)
-    right = ssr.to_random(1)
-
-    xmin, xmax = left.mu - 2 * left.sigma2 ** 0.5, right.mu + 2 * right.sigma2 ** 0.5
-
-    ys = np.linspace(0, 1, precision)
-    xs = np.linspace(xmin, xmax, precision)
+    left, right, source, xmax, xmin, xs, ys = prepare_plot(ax, precision, ssr)
 
     pairs = {
         alpha: (
@@ -46,9 +41,4 @@ def plot_bledge(ax: Axes, ssr: TriangleSymmetric[Normal], precision=256):
         [_evaluate(xs, y, left, right) for y, (left, right) in pairs.items()]
     )
 
-    source = np.meshgrid(xs, ys)
-
-    ax.pcolormesh(*source, data, shading="gouraud", cmap="gray_r")
-
-    # hack to expand y-limit
-    ax.plot((xmin, xmax), (-0.01, 1.01), alpha=0)
+    ax.pcolormesh(*source, data, shading="gouraud", cmap="Greys")
