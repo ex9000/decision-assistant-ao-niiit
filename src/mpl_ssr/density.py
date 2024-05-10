@@ -13,32 +13,23 @@ def _inverse_normalized(xs, dist: rv_continuous):
     return 1 - v
 
 
-def _evaluate(xs, y, left: rv_continuous, right: rv_continuous):
-    a = _inverse_normalized(xs, left)
-    b = _inverse_normalized(xs, right)
-
-    # eliminate an illusion of bright vertical line
-    smooth = 1 - (a ** 0.5 * b ** 0.5) ** 2
-    ground_truth = 1 - np.minimum(a, b)
-
-    k = y ** 16
-
-    return (1 - k) * smooth + k * ground_truth
+def _evaluate(xs, left: rv_continuous, right: rv_continuous):
+    return left.cdf(xs) * right.sf(xs)
 
 
-def plot_bledge(ax: Axes, ssr: TriangleSymmetric[Normal], precision=256):
+def plot_density(ax: Axes, ssr: TriangleSymmetric[Normal], precision=256):
     left, right, source, xmax, xmin, xs, ys = prepare_plot(ax, precision, ssr)
 
-    pairs = {
-        alpha: (
+    pairs = [
+        (
             ssr.to_random(alpha, Measure.NECESSITY).to_scipy_stat(),
             ssr.to_random(1 - alpha, Measure.POSSIBILITY).to_scipy_stat(),
         )
         for alpha in ys
-    }
+    ]
 
-    data = np.stack(
-        [_evaluate(xs, y, left, right) for y, (left, right) in pairs.items()]
-    )
+    data = np.stack([_evaluate(xs, left, right) for left, right in pairs])
 
     ax.pcolormesh(*source, data, shading="gouraud", cmap="Greys")
+    cs = ax.contour(*source, data, cmap="plasma")
+    ax.clabel(cs, inline=1, fontsize=10)
