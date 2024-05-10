@@ -92,4 +92,4 @@ class Normal(Probability):
         return f"𝓝(μ={self.mu}, σ²={self.sigma2})"
 
     def to_scipy_stat(self) -> rv_continuous:
-        return norm(self.mu, self.sigma2)
+        return norm(self.mu, self.sigma2 ** 0.5)
