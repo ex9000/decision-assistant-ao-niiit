@@ -1,5 +1,3 @@
-from math import pi, sqrt
-
 import numpy as np
 from matplotlib.axes import Axes
 from scipy.stats import rv_continuous
@@ -8,28 +6,34 @@ from src.fuzzy import TriangleSymmetric, Measure
 from src.probability import Normal
 
 
-@np.vectorize(excluded=("pairs",))
-def _evaluate(x, y, pairs: dict[float, tuple[rv_continuous, rv_continuous]]):
-    left, right = pairs[y]
-    left: rv_continuous
-    right: rv_continuous
-
-    a = 1 - left.pdf(x) * sqrt(2 * pi * left.var())
-    b = 1 - right.pdf(x) * sqrt(2 * pi * right.var())
-
-    p = 1 - (a ** 0.5 * b ** 0.5) ** 2
-    q = 1 - min(a, b)
-
-    return np.interp(y ** 16, (0, 1), (p, q))
+def _inverse_normalized(xs, dist: rv_continuous):
+    v = dist.pdf(xs)
+    v /= v.max()
+    return 1 - v
 
 
-def plot_bledge(ax: Axes, ssr: TriangleSymmetric[Normal], precision=64):
+def _evaluate(xs, y, left: rv_continuous, right: rv_continuous):
+    a = _inverse_normalized(xs, left)
+    b = _inverse_normalized(xs, right)
+
+    # eliminate an illusion of bright vertical line
+    smooth = 1 - (a ** 0.5 * b ** 0.5) ** 2
+    ground_truth = 1 - np.minimum(a, b)
+
+    k = y ** 16
+
+    return (1 - k) * smooth + k * ground_truth
+
+
+def plot_bledge(ax: Axes, ssr: TriangleSymmetric[Normal], precision=256):
     left = ssr.to_random(-1)
     right = ssr.to_random(1)
 
     xmin, xmax = left.mu - 3 * left.sigma2 ** 0.5, right.mu + 3 * right.sigma2 ** 0.5
 
     ys = np.linspace(0, 1, precision)
+    xs = np.linspace(xmin, xmax, precision)
+
     pairs = {
         alpha: (
             ssr.to_random(alpha, Measure.NECESSITY).to_scipy_stat(),
@@ -38,10 +42,10 @@ def plot_bledge(ax: Axes, ssr: TriangleSymmetric[Normal], precision=64):
         for alpha in ys
     }
 
-    source = np.meshgrid(np.linspace(xmin, xmax, precision), ys)  # , indexing="ij")
-    data = _evaluate(
-        *source,
-        pairs=pairs,
+    data = np.stack(
+        [_evaluate(xs, y, left, right) for y, (left, right) in pairs.items()]
     )
+
+    source = np.meshgrid(xs, ys)
 
     ax.pcolormesh(*source, data, shading="gouraud", cmap="gray_r")
