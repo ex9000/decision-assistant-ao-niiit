@@ -4,8 +4,8 @@ from scipy.stats import rv_continuous
 
 from src.fuzzy import TriangleSymmetric, Measure
 from src.lang import *
-from src.mpl_ssr.plotting import prepare_plot
 from src.probability import Normal
+from .plotting import prepare_plot
 
 
 def _normalized(xs, dist: rv_continuous):

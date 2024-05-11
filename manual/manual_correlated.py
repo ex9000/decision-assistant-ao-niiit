@@ -1,0 +1,27 @@
+import matplotlib.pyplot as plt
+
+from src.mpl_corr import plot_correlation
+from src.mpl_main import SQUARE_FIG_PARAMS, final_patch, fig2pil
+
+
+def main():
+    corr = 0.0
+
+    fig, ax = SQUARE_FIG_PARAMS.init_ax_fig()
+
+    plot_correlation(ax, corr)
+
+    final_patch(ax, legend=False, axes=False)
+
+    im = fig2pil(fig)
+
+    im.show()
+
+    plt.close(fig)
+    ax.clear()
+    fig.clear()
+    del fig, ax
+
+
+if __name__ == "__main__":
+    main()

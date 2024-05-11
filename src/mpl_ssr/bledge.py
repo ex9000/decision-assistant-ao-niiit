@@ -3,8 +3,8 @@ from matplotlib.axes import Axes
 from scipy.stats import rv_continuous
 
 from src.fuzzy import TriangleSymmetric, Measure
-from src.mpl_ssr.plotting import prepare_plot
 from src.probability import Normal
+from .plotting import prepare_plot
 
 
 def _inverse_normalized(xs, dist: rv_continuous):

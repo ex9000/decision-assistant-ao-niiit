@@ -1,8 +1,9 @@
 import matplotlib.pyplot as plt
 
 from src.fuzzy import TriangleSymmetric
-from src.lang import switch_lang, Lang
-from src.mpl_ssr import plot_schematic, NORMAL_FIG_PARAMS, final_patch, fig2pil
+from src.lang import *
+from src.mpl_main import NORMAL_FIG_PARAMS, final_patch, fig2pil
+from src.mpl_ssr import plot_schematic
 from src.probability import Normal
 
 
@@ -16,7 +17,9 @@ def main():
     fig, ax = NORMAL_FIG_PARAMS.init_ax_fig()
 
     plot_schematic(ax, a + delta * X)
-    final_patch(ax, legend=True, axes=True)
+    final_patch(
+        ax, legend=True, ax_labels=(K_EFFECTIVENESS.title(), K_POSSIBILITY.title())
+    )
 
     im = fig2pil(fig)
 
