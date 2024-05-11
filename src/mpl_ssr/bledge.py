@@ -31,8 +31,8 @@ def plot_bledge(ax: Axes, ssr: TriangleSymmetric[Normal], precision=256):
 
     pairs = {
         alpha: (
-            ssr.to_random(alpha, Measure.NECESSITY).to_scipy_stat(),
-            ssr.to_random(1 - alpha, Measure.POSSIBILITY).to_scipy_stat(),
+            ssr.to_random(1 - alpha, Measure.NECESSITY).to_scipy_stat(),
+            ssr.to_random(alpha, Measure.POSSIBILITY).to_scipy_stat(),
         )
         for alpha in ys
     }

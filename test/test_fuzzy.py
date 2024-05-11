@@ -16,4 +16,4 @@ class TestFuzzy(unittest.TestCase):
 
         r = x + z * y
         self.assertIsNotNone(r)
-        self.assertEqual(Normal(29.0, 332.0), r.to_random(0, Measure.NECESSITY))
+        self.assertEqual(Normal(29.0, 332.0), r.to_random(1, Measure.NECESSITY))

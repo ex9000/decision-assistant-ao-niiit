@@ -118,10 +118,12 @@ class TriangleSymmetric[T: Probability](Fuzzy):
 
     def to_random(self, alpha: float, measure: Measure = None) -> T:
         match measure:
-            case None | Measure.POSSIBILITY:
+            case None:
                 beta = alpha
+            case Measure.POSSIBILITY:
+                beta = 1 - alpha
             case Measure.NECESSITY:
-                beta = alpha - 1
+                beta = -alpha
             case _:
                 raise ValueError(f"Unknown measure {measure}")
 

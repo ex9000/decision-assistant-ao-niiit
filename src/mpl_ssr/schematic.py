@@ -20,16 +20,14 @@ def plot_schematic(ax: Axes, ssr: TriangleSymmetric[Normal], precision=256):
 
     pess = np.stack(
         [
-            _normalized(xs, ssr.to_random(alpha, Measure.NECESSITY).to_scipy_stat())
+            _normalized(xs, ssr.to_random(1 - alpha, Measure.NECESSITY).to_scipy_stat())
             for alpha in ys
         ]
     )
 
     opt = np.stack(
         [
-            _normalized(
-                xs, ssr.to_random(1 - alpha, Measure.POSSIBILITY).to_scipy_stat()
-            )
+            _normalized(xs, ssr.to_random(alpha, Measure.POSSIBILITY).to_scipy_stat())
             for alpha in ys
         ]
     )
