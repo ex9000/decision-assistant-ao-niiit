@@ -117,6 +117,17 @@ class TriangleSymmetric[T: Probability](Fuzzy):
     def to_random(self, beta: float) -> T: ...
 
     def to_random(self, alpha: float, measure: Measure = None) -> T:
+        """
+        It is not correct to say `convert` fuzzy-value using measure.
+        ! It is STRONGLY ASSUMED that given random-value will be used to compare it GREATER OR EQUAL with some level.
+
+        pi {FUZZY >= level} >= alpha
+        nu {FUZZY >= level} >= alpha
+
+        beta -- is seamless transition from nu to pi. (their common point nu(0) == pi(1)).
+        beta [-1 .. 0] ~ nu [1 .. 0]
+        beta [0 .. 1] ~ pi [1 .. 0]
+        """
         match measure:
             case None:
                 beta = alpha
