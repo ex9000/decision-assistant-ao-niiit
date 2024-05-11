@@ -20,4 +20,7 @@ def prepare_plot(ax, precision, ssr):
     # hack to expand y-limit
     ax.plot((xmin, xmax), (-0.01, 1.01), alpha=0)
 
+    # top black line
+    ax.axhline(y=1, linestyle="-", c="black", linewidth=2.0, zorder=100)
+
     return left, right, source, xmax, xmin, xs, ys

@@ -7,8 +7,6 @@ from matplotlib import pyplot as plt
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
 
-from src.lang import *
-
 
 @dataclass
 class FigParams:
@@ -23,14 +21,25 @@ class FigParams:
 
 NORMAL_FIG_PARAMS = FigParams()
 WIDE_FIG_PARAMS = FigParams((12.0, 4.0))
+SQUARE_FIG_PARAMS = FigParams((5.0, 5.0), dpi=100)
 
 
-def final_patch(ax: Axes, /, legend=False, axes=False, grid=True):
-    ax.axhline(y=1, linestyle="-", c="black", linewidth=2.0)
+def final_patch(
+        ax: Axes,
+        /,
+        legend=False,
+        axes=True,
+        grid=True,
+        ax_labels: Tuple[str, str] = (None, None),
+):
+    if not axes:
+        ax.set_axis_off()
 
-    if axes:
-        ax.set_xlabel(K_EFFECTIVENESS.title())
-        ax.set_ylabel(K_POSSIBILITY.title())
+    if axes and ax_labels[0]:
+        ax.set_xlabel(ax_labels[0])
+
+    if axes and ax_labels[1]:
+        ax.set_ylabel(ax_labels[1])
 
     if legend:
         ax.legend(loc="upper right", bbox_to_anchor=(1.0, 0.95))
