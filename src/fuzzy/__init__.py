@@ -140,3 +140,4 @@ class TriangleSymmetric[T: Probability](Fuzzy):
 
         val: float = np.interp(beta, (-1, 1), (self.left, self.right))
         return self._produce_random(val)
+
