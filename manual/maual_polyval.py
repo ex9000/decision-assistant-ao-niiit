@@ -6,9 +6,9 @@ from numpy.polynomial.polynomial import polyval
 # Each row represents a polynomial's coefficients from lowest to highest degree
 polynomials_matrix = np.array(
     [
-        [3, -2, 1],  # Polynomial 1: 3 - 2x + x^2
+        [4, -2, 1],  # Polynomial 1: 3 - 2x + x^2
         [-1, 0, 4],  # Polynomial 2: -1 + 4x^2
-        [1, 0, -1],  # Polynomial 2: -1 + 4x^2
+        [2, 0, -1],  # Polynomial 2: -1 + 4x^2
         # ... Add more rows for more polynomials
     ]
 ).T
