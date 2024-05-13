@@ -66,26 +66,30 @@ def solve_frontier(
         sysmatrix: np.ndarray,
         fixed: dict[int, float] = None,
         sum_constraint: float = 1,
-) -> ((float, float), (int, int)):
+) -> np.ndarray:
     """Gets polynomial for a frontier"""
 
     assert sysmatrix.ndim == 2
-    h, w = sysmatrix
+    h, w = sysmatrix.shape
 
     assert h == w
 
     mask = np.ones(h, dtype=bool)
     constants = np.array([])
-    if fixed is not None:
+    if fixed is not None and fixed:
         excluded = np.array(list(fixed))
         assert np.all(excluded[:-1] <= excluded[1:])
 
         mask[excluded] = False
         constants = np.array(list(fixed.values()))
 
-    subsolution = solve_matrix(sysmatrix[mask][mask], sum_constraint - constants.sum())
+    subsolution = solve_matrix(
+        sysmatrix[mask, ...][..., mask],
+        sum_constraint - constants.sum(),
+    )
 
-    result = np.zeros((2, h))
+    mask = mask[:-2]
+    result = np.zeros((2, h - 2))
     result[..., mask] = subsolution
     result[0, ~mask] = constants
 

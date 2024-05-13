@@ -2,11 +2,13 @@ import numpy as np
 import scipy as sp
 from numpy.polynomial.polynomial import polyval
 
+type domain = tuple[tuple[float, float], tuple[int, int]]
+
 
 def solve_matrix(matrix: np.ndarray, sum_constraint: float = 1) -> np.ndarray:
     """Solve Lagrangian, last 2 rows and 2 columns of matrix is extra lambda coefficients"""
 
-    assert len(matrix.shape) == 2
+    assert matrix.ndim == 2
 
     h, w = matrix.shape
     assert h == w
@@ -15,7 +17,7 @@ def solve_matrix(matrix: np.ndarray, sum_constraint: float = 1) -> np.ndarray:
     vector[-1, 0] = sum_constraint
     vector[-2, 1] = 1
 
-    solution = sp.linalg.solve(matrix, vector, assume_a="sym")[-2:, ...].T
+    solution = sp.linalg.solve(matrix, vector, assume_a="sym")[:-2, ...].T
 
     assert (solution[1] > 0).any(), "at least one share must be increasing"
     assert (solution[1] < 0).any(), "at least one share must be decreasing"
@@ -24,8 +26,10 @@ def solve_matrix(matrix: np.ndarray, sum_constraint: float = 1) -> np.ndarray:
 
 
 def apply_gt_constraints(
-        solution: np.ndarray, constraints: np.ndarray
-) -> ((float, float), (int, int)):
+        solution: np.ndarray,
+        constraints: np.ndarray,
+        mask: np.ndarray = None,
+) -> domain:
     """Finds allowed segment and critical variable indices"""
 
     assert constraints.ndim == 1
@@ -34,27 +38,37 @@ def apply_gt_constraints(
 
     assert h == 2 and w == len(constraints)
 
-    critical = (constraints + solution[0]) / solution[1]
+    if mask is None:
+        mask = np.ones(h, dtype=bool)
 
-    low = critical[solution[1] > 0].max()
-    high = critical[solution[1] < 0].min()
+    assert mask.ndim == 1
+    assert len(mask) == w
 
-    low_id = (polyval(low, solution) - constraints).argmin()
-    high_id = (polyval(high, solution) - constraints).argmin()
+    critical = (constraints - solution[0]) / solution[1]
+
+    low: float = critical[mask][solution[1][mask] > 0].max()
+    high: float = critical[mask][solution[1][mask] < 0].min()
+
+    low_id: int = (polyval(low, solution) - constraints)[mask].argmin()
+    high_id: int = (polyval(high, solution) - constraints)[mask].argmin()
 
     return (low, high), (low_id, high_id)
 
 
 def apply_lt_constraints(
-        solution: np.ndarray, constraints: np.ndarray
-) -> ((float, float), (int, int)):
+        solution: np.ndarray,
+        constraints: np.ndarray,
+        mask: np.ndarray = None,
+) -> domain:
     """Finds allowed segment and critical variable indices"""
 
     # inverse inequalities
-    return apply_gt_constraints(-solution, -constraints)
+    return apply_gt_constraints(-solution, -constraints, mask)
 
 
-def lowest_parabola_point(matrix: np.ndarray, solution: np.ndarray) -> (float, float):
+def lowest_parabola_point(
+        matrix: np.ndarray, solution: np.ndarray
+) -> tuple[float, float]:
     """Finds the lowest parabola point - return and variance.
 
     Args:
@@ -99,7 +113,7 @@ def quadratic_form(matrix: np.ndarray, weights: np.ndarray) -> np.ndarray:
     # operations. If you have a large number of vectors, this method will be much faster than
     # computing each quadratic form in a loop.
 
-    return np.einsum("ij,jk,ik->i", xs, m, xs, optimize=True)
+    return np.einsum("ji,jk,ki->i", xs, m, xs, optimize=True)
 
 
 def frontier_derivation(
@@ -125,5 +139,27 @@ def frontier_derivation(
 
 
 def make_covariance(dispersion: np.ndarray, correlation: np.ndarray) -> np.ndarray:
-    std = dispersion ** 0.5
+    std = (dispersion ** 0.5).reshape((1, len(dispersion)))
     return correlation * std * std.T
+
+
+def rest_mask(n: int, excluded: list[int]) -> np.ndarray:
+    mask = np.ones(n, dtype=bool)
+    mask[excluded] = False
+    return mask
+
+
+def intersect_segments(*segments: domain) -> domain:
+    left, right = float("-inf"), float("inf")
+    i, j = -1, -1
+
+    for (a, b), (ai, bj) in segments:
+        if a > left:
+            left = a
+            i = ai
+
+        if b < right:
+            right = b
+            j = bj
+
+    return (left, right), (i, j)
