@@ -93,9 +93,9 @@ def solve_frontier(
         fixed_weights[~mask[:-2]] = constants
 
         ## !!
-        sysmatrix = sysmatrix.copy()
         patch = sysmatrix[:-2, :-2] @ fixed_weights
-        sysmatrix[-2, :-2] += patch / 2  # some how
+        patch[~mask[:-2]] = 0
+        offset[:-2] -= patch  # some how
 
         offset[-2] -= sysmatrix[-2, :-2] @ fixed_weights
         offset[-1] -= fixed_weights.sum()

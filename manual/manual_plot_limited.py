@@ -18,7 +18,7 @@ from src.tsn_ssr import compose_system, solve_frontier
 
 expected = np.array([1, 2, 3, 4, 0])
 dispersion = np.array([10, 1, 7, 8, 12])
-correlation = np.eye(5)
+correlation = np.eye(5) * 0.9 + 0.1
 correlation[-1, :] = correlation[:, -1] = np.ones(5)
 
 minimal, maximal = 0.1, 0.57
