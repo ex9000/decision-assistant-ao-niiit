@@ -74,18 +74,33 @@ def solve_frontier(
 
     assert h == w
 
+    offset = np.zeros(h)
+    offset[-1] = sum_constraint
+
     mask = np.ones(h, dtype=bool)
     constants = np.array([])
     if fixed is not None and fixed:
+        # get array of indices
         excluded = np.array(list(fixed))
         assert np.all(excluded[:-1] <= excluded[1:])
 
+        # fulfill the mask
         mask[excluded] = False
         constants = np.array(list(fixed.values()))
 
+        # patch matrix and offset
+        fixed_weights = np.zeros(h - 2)
+        fixed_weights[~mask[:-2]] = constants
+
+        ## !!
+        offset[:-2] -= np.einsum("ij,j->i", sysmatrix[:-2, :-2], fixed_weights)
+
+        offset[-2] -= sysmatrix[-2, :-2] @ fixed_weights
+        offset[-1] -= fixed_weights.sum()
+
     subsolution = solve_matrix(
         sysmatrix[mask, ...][..., mask],
-        sum_constraint - constants.sum(),
+        offset[mask],
     )
 
     mask = mask[:-2]

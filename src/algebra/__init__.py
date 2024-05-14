@@ -5,7 +5,7 @@ from numpy.polynomial.polynomial import polyval
 type domain = tuple[tuple[float, float], tuple[int, int]]
 
 
-def solve_matrix(matrix: np.ndarray, sum_constraint: float = 1) -> np.ndarray:
+def solve_matrix(matrix: np.ndarray, constant_offset: np.ndarray = None) -> np.ndarray:
     """Solve Lagrangian, last 2 rows and 2 columns of matrix is extra lambda coefficients"""
 
     assert matrix.ndim == 2
@@ -13,9 +13,16 @@ def solve_matrix(matrix: np.ndarray, sum_constraint: float = 1) -> np.ndarray:
     h, w = matrix.shape
     assert h == w
 
+    if constant_offset is None:
+        constant_offset = np.zeros(h)
+        constant_offset[-1] = 1
+
+    assert constant_offset.ndim == 1
+    assert len(constant_offset) == h
+
     vector = np.zeros((h, 2))
-    vector[-1, 0] = sum_constraint
-    vector[-2, 1] = 1
+    vector[..., 0] = constant_offset
+    vector[-2, 1] = 1  # return level coefficient
 
     solution = sp.linalg.solve(matrix, vector, assume_a="sym")[:-2, ...].T
 
@@ -44,10 +51,10 @@ def apply_gt_constraints(
     assert mask.ndim == 1
     assert len(mask) == w
 
-    critical = (constraints - solution[0]) / solution[1]
+    critical = (constraints[mask] - solution[0][mask]) / solution[1][mask]
 
-    low: float = critical[mask][solution[1][mask] > 0].max()
-    high: float = critical[mask][solution[1][mask] < 0].min()
+    low: float = critical[solution[1][mask] > 0].max()
+    high: float = critical[solution[1][mask] < 0].min()
 
     low_id: int = (polyval(low, solution) - constraints)[mask].argmin()
     high_id: int = (polyval(high, solution) - constraints)[mask].argmin()

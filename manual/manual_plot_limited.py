@@ -1,4 +1,4 @@
-from itertools import combinations, chain
+from itertools import combinations, chain, product
 
 import numpy as np
 from matplotlib import pyplot as plt
@@ -21,12 +21,9 @@ dispersion = np.array([10, 1, 7, 8, 12])
 correlation = np.eye(5)
 correlation[-1, :] = correlation[:, -1] = np.ones(5)
 
-covariance = make_covariance(dispersion, correlation)
-sysmatrix = compose_system(expected, covariance)
+minimal, maximal = 0.1, 0.57
 
-minimal, maximal = 0.3, 0.4
-
-subsets = chain(*map(lambda i: combinations(range(4), i), range(3)))
+subsets = list(chain(*map(lambda i: combinations(range(4), i), range(3))))
 
 covariance = make_covariance(dispersion[:-1], correlation[:-1, :-1])
 sysmatrix = compose_system(expected[:-1], covariance)
@@ -41,21 +38,62 @@ for grp in tqdm(subsets):
 
     free.append((left, right, sol))
 
-fig, ax = plt.subplots(1, figsize=(10, 10))
+limited = []
+for grp in tqdm(subsets):
+    mask = rest_mask(4, list(grp))
+    sol = solve_frontier(sysmatrix, {i: 0 for i in grp})
+    (left, right), *_ = intersect_segments(
+        apply_gt_constraints(sol, np.full(4, minimal), mask),
+        apply_lt_constraints(sol, np.full(4, maximal), mask),
+    )
+
+    limited.append((left, right, sol))
+
+fixed = []
+for grp in tqdm(subsets):
+    mask = rest_mask(4, list(grp))
+    for limits in product([minimal, maximal], repeat=len(grp)):
+        sol = solve_frontier(sysmatrix, dict(zip(grp, limits)))
+        (left, right), *_ = intersect_segments(
+            apply_gt_constraints(sol, np.full(4, minimal), mask),
+            apply_lt_constraints(sol, np.full(4, maximal), mask),
+        )
+
+        fixed.append((left, right, sol))
+
+fig, ax = plt.subplots(1, figsize=(10, 8))
 
 xs = np.linspace(min(expected), max(expected), 1000)
 
-ax.scatter(expected, dispersion)
+ax.scatter(expected, dispersion, zorder=50)
 for xmin, xmax, sol in free:
     rest = xs[(xs > xmin) & (xs < xmax)]
     if len(rest) < 2:
         continue
 
     weights = polyval(rest, sol)
-    ax.plot(rest, quadratic_form(covariance, weights), c="k", linewidth=2)
+    ax.plot(rest, quadratic_form(covariance, weights), c="k", linewidth=4)
 
     x, y = lowest_parabola_point(covariance, sol)
     if xmin < x < xmax:
         ax.scatter(x, y, marker="*", c="y", s=100, zorder=100)
+
+for xmin, xmax, sol in limited:
+    rest = xs[(xs > xmin) & (xs < xmax)]
+    if len(rest) < 2:
+        continue
+
+    weights = polyval(rest, sol)
+    ax.plot(rest, quadratic_form(covariance, weights), c="lime", linewidth=3, zorder=25)
+
+for xmin, xmax, sol in fixed:
+    rest = xs[(xs > xmin) & (xs < xmax)]
+    if len(rest) < 2:
+        continue
+
+    weights = polyval(rest, sol)
+    ax.plot(
+        rest, quadratic_form(covariance, weights), c="royalblue", linewidth=3, zorder=35
+    )
 
 plt.show()
