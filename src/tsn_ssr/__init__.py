@@ -93,7 +93,9 @@ def solve_frontier(
         fixed_weights[~mask[:-2]] = constants
 
         ## !!
-        offset[:-2] -= np.einsum("ij,j->i", sysmatrix[:-2, :-2], fixed_weights)
+        sysmatrix = sysmatrix.copy()
+        patch = sysmatrix[:-2, :-2] @ fixed_weights
+        sysmatrix[-2, :-2] += patch / 2  # some how
 
         offset[-2] -= sysmatrix[-2, :-2] @ fixed_weights
         offset[-1] -= fixed_weights.sum()
