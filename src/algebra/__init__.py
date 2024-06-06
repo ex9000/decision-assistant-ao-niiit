@@ -2,6 +2,8 @@ import numpy as np
 import scipy as sp
 from numpy.polynomial.polynomial import polyval
 
+from .corr import adjust_corr_matrix
+
 type domain = tuple[tuple[float, float], tuple[int, int]]
 
 

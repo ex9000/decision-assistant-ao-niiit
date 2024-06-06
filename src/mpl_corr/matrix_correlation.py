@@ -14,7 +14,7 @@ def cluster_corr(corr_array, inplace=False):
     link: https://web.archive.org/web/20231001075317/https://wil.yegelwel.com/cluster-correlation-matrix/
 
     Rearranges the correlation matrix, corr_array, so that groups of highly
-    correlated variables are next to eachother
+    correlated variables are next to each other
 
     Parameters
     ----------
