@@ -48,7 +48,7 @@ def apply_gt_constraints(
     assert h == 2 and w == len(constraints)
 
     if mask is None:
-        mask = np.ones(h, dtype=bool)
+        mask = np.ones(w, dtype=bool)
 
     assert mask.ndim == 1
     assert len(mask) == w
@@ -61,7 +61,10 @@ def apply_gt_constraints(
     low_id: int = (polyval(low, solution) - constraints)[mask].argmin()
     high_id: int = (polyval(high, solution) - constraints)[mask].argmin()
 
-    return (low, high), (low_id, high_id)
+    real_low_id = np.arange(w)[mask][low_id]
+    real_high_id = np.arange(w)[mask][high_id]
+
+    return (low, high), (real_low_id, real_high_id)
 
 
 def apply_lt_constraints(
@@ -154,7 +157,7 @@ def make_covariance(dispersion: np.ndarray, correlation: np.ndarray) -> np.ndarr
 
 def rest_mask(n: int, excluded: list[int]) -> np.ndarray:
     mask = np.ones(n, dtype=bool)
-    mask[excluded] = False
+    mask[list(excluded)] = False
     return mask
 
 
@@ -172,3 +175,7 @@ def intersect_segments(*segments: domain) -> domain:
             j = bj
 
     return (left, right), (i, j)
+
+
+def is_float_less(x, y):
+    return x < y and not np.isclose(x, y)
