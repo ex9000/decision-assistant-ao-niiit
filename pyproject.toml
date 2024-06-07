@@ -6,7 +6,7 @@ authors = ["ex9000 <ex9000@hotmail.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.12"
+python = ">=3.12,<3.13"
 flet = "^0.22.0"
 matplotlib = "^3.8.4"
 scipy = "^1.13.0"
@@ -14,7 +14,12 @@ numpy = "^1.26.4"
 pillow = "^10.3.0"
 pandas = "^2.2.2"
 tqdm = "^4.66.4"
+flet-multi-page = "^1.3.1"
+openpyxl = "^3.1.3"
+
+[tool.poetry.group.dev.dependencies]
 pytest = "^8.2.2"
+pyinstaller = "^6.8.0"
 
 
 [build-system]
