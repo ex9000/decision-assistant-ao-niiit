@@ -1,38 +1,39 @@
 import flet as ft
 
-from src.square_root import solve
+from src.app.data_model import Item
+from src.app.gui import new_item_card
+
+items = []
+free = set()
 
 
 def window(page: ft.Page):
-    counter = 0
+    column = ft.Column(alignment=ft.MainAxisAlignment.CENTER)
 
-    page.title = "Flet counter example"
-    page.vertical_alignment = ft.MainAxisAlignment.CENTER
-    page.theme_mode = ft.ThemeMode.DARK
+    page.title = "СППР Аггрегация"
+    page.vertical_alignment = ft.MainAxisAlignment.START
+    page.theme_mode = ft.ThemeMode.LIGHT
 
-    txt_number = ft.TextField(value="0")
-
-    def minus_click(e):
-        nonlocal counter
-        counter -= 1
-
-        _, root = solve(1, 0, -counter)
-        txt_number.value = str(root)
+    def drop_func(card, item):
+        column.controls.remove(card)
+        items.remove(item)
+        free.add(item.name)
         page.update()
 
     def plus_click(e):
-        nonlocal counter
-        counter += 1
+        name = f"Item #{1 + len(items)}"
+        if free:
+            name = free.pop()
 
-        _, root = solve(1, 0, -counter)
-        txt_number.value = str(root)
+        items.append(Item(name, 0, 0))
+
+        column.controls.append(new_item_card(items[-1], drop_func))
         page.update()
 
     page.add(
-        ft.Row(
+        ft.Column(
             [
-                ft.IconButton(ft.icons.REMOVE, on_click=minus_click),
-                txt_number,
+                column,
                 ft.IconButton(ft.icons.ADD, on_click=plus_click),
             ],
             alignment=ft.MainAxisAlignment.CENTER,
