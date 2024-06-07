@@ -15,7 +15,7 @@ def window(page: ft.Page):
     page.theme_mode = ft.ThemeMode.LIGHT
 
     def drop_func(card, item):
-        column.controls.remove(card)
+        page.remove(card)
         items.remove(item)
         free.add(item.name)
         page.update()
@@ -27,18 +27,15 @@ def window(page: ft.Page):
 
         items.append(Item(name, 0, 0))
 
-        column.controls.append(new_item_card(items[-1], drop_func))
+        page.add(new_item_card(items[-1], drop_func))
         page.update()
 
-    page.add(
-        ft.Column(
-            [
-                column,
-                ft.IconButton(ft.icons.ADD, on_click=plus_click),
-            ],
-            alignment=ft.MainAxisAlignment.CENTER,
-        )
+    page.floating_action_button = ft.FloatingActionButton(
+        icon=ft.icons.ADD, on_click=plus_click
     )
+
+    page.scroll = ft.ScrollMode.HIDDEN
+    page.update()
 
 
 def main():
