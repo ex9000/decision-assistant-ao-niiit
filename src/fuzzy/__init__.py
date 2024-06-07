@@ -104,7 +104,7 @@ class TriangleSymmetric[T: Probability](Fuzzy):
         assert self.shift is not None or self.scale is not None
 
         if self.scale is None:
-            return self.shift
+            return self.shift + factor
 
         if self.shift is None:
             return self.scale * factor
@@ -140,4 +140,3 @@ class TriangleSymmetric[T: Probability](Fuzzy):
 
         val: float = np.interp(beta, (-1, 1), (self.left, self.right))
         return self._produce_random(val)
-
