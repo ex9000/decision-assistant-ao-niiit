@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 from src.fuzzy import TriangleSymmetric
 from src.lang import *
 from src.mpl_main import NORMAL_FIG_PARAMS, final_patch, fig2pil
+from src.mpl_main.figparams import LegendType
 from src.mpl_ssr import plot_schematic
 from src.probability import Normal
 
@@ -18,7 +19,9 @@ def main():
 
     plot_schematic(ax, a + delta * X)
     final_patch(
-        ax, legend=True, ax_labels=(K_EFFECTIVENESS.title(), K_POSSIBILITY.title())
+        ax,
+        legend=LegendType.INSIDE,
+        ax_labels=(K_EFFECTIVENESS.title(), K_POSSIBILITY.title()),
     )
 
     im = fig2pil(fig)

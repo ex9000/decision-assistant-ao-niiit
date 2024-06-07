@@ -11,7 +11,7 @@ def main():
 
     plot_correlation(ax, corr)
 
-    final_patch(ax, legend=False, axes=False)
+    final_patch(ax, axes=False)
 
     im = fig2pil(fig)
 

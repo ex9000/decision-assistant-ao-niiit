@@ -4,4 +4,5 @@ from .figparams import (
     SQUARE_FIG_PARAMS,
     fig2pil,
     final_patch,
+    LegendType,
 )

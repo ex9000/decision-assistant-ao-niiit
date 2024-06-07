@@ -1,5 +1,6 @@
 import io
 from dataclasses import dataclass
+from enum import Enum, auto
 from typing import Tuple
 
 from PIL import Image
@@ -19,6 +20,12 @@ class FigParams:
         return fig, ax
 
 
+class LegendType(Enum):
+    DISABLED = auto()
+    INSIDE = auto()
+    OUTSIDE = auto()
+
+
 NORMAL_FIG_PARAMS = FigParams()
 WIDE_FIG_PARAMS = FigParams((12.0, 4.0))
 SQUARE_FIG_PARAMS = FigParams((5.0, 5.0), dpi=100)
@@ -27,10 +34,11 @@ SQUARE_FIG_PARAMS = FigParams((5.0, 5.0), dpi=100)
 def final_patch(
         ax: Axes,
         /,
-        legend=False,
+        legend: LegendType = LegendType.DISABLED,
         axes=True,
         grid=True,
         ax_labels: Tuple[str, str] = (None, None),
+        title: str = None,
 ):
     if not axes:
         ax.set_axis_off()
@@ -41,8 +49,16 @@ def final_patch(
     if axes and ax_labels[1]:
         ax.set_ylabel(ax_labels[1])
 
-    if legend:
-        ax.legend(loc="upper right", bbox_to_anchor=(1.0, 0.95))
+    match legend:
+        case LegendType.INSIDE:
+            ax.legend(loc="upper right", bbox_to_anchor=(1.0, 0.95))
+        case LegendType.OUTSIDE:
+            ax.legend(
+                loc="center left", bbox_to_anchor=(1, 0.5), fancybox=True, shadow=True
+            )
+
+    if title:
+        ax.set_title(title)
 
     if grid:
         ax.grid()

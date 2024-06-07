@@ -17,9 +17,7 @@ def main():
     fig, ax = NORMAL_FIG_PARAMS.init_ax_fig()
 
     plot_density(ax, a + delta * X)
-    final_patch(
-        ax, legend=False, ax_labels=(K_EFFECTIVENESS.title(), K_POSSIBILITY.title())
-    )
+    final_patch(ax, ax_labels=(K_EFFECTIVENESS.title(), K_POSSIBILITY.title()))
 
     im = fig2pil(fig)
 
