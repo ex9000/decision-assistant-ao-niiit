@@ -46,3 +46,43 @@ K_POSSIBILITY = Translation("possibility", "возможность")
 K_FRONTIER_SHARES = Translation("frontier with shares", "граница и доли")
 K_INCOME = Translation("income", "доходность")
 K_RISK = Translation("risk", "риск")
+
+E_FILE_IS_NOT_EXISTS = Translation(
+    "file `{}` does not exists!",
+    "файл `{}` не существует!",
+)
+E_PATH_IS_NOT_A_FILE = Translation("`{}` is not a file!", "`{}` это не файл!")
+E_CANNOT_PARSE_FILE = Translation(
+    "cannot parse `{}`!",
+    "не удалось прочитать файл `{}`!",
+)
+E_CANNOT_SAVE_FILE = Translation("cannot save `{}`!", "не удалось сохранить файл `{}`!")
+
+
+class DISTRIBUTE:
+    class SUPPLY:
+        K_FILE_NAME = Translation("supplies", "арсенал")
+
+        K_NAME = Translation("name", "наименование")
+        K_POTENTIAL = Translation(
+            "combat potential [art. shell]",
+            "боевой потенциал [арт. снаряд]",
+        )
+        K_AMOUNT = Translation("available [units]", "доступно [единиц]")
+        K_PRICE = Translation("price [mill. per 1 unit]", "стоимость [млн. за 1 ед.]")
+        K_ACTIVE = Translation("active [true/false]", "активен [истина/ложь]")
+
+    class TARGET:
+        K_FILE_NAME = Translation("targets", "цели")
+
+        K_NAME = Translation("name", "наименование")
+        K_HEALTH = Translation("survivability [art. shell]", "живучесть [арт. снаряд]")
+        K_PRIORITY = Translation("priority", "приоритет")
+        K_ACTIVE = Translation("active [true/false]", "активен [истина/ложь]")
+
+    class SOLUTION:
+        K_FILE_NAME = Translation("solution", "решение")
+
+        K_NAME = Translation("name", "наименование")
+        K_PRICE = Translation("price", "стоимость")
+        K_TOTAL = Translation("total", "итого")
