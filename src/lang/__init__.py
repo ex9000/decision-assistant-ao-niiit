@@ -46,6 +46,10 @@ K_POSSIBILITY = Translation("possibility", "возможность")
 K_FRONTIER_SHARES = Translation("frontier with shares", "граница и доли")
 K_INCOME = Translation("income", "доходность")
 K_RISK = Translation("risk", "риск")
+K_TACTICAL_PLANNING = Translation("tactical planning", "тактическое планирование")
+K_MENU = Translation("menu", "меню")
+K_VIEW = Translation("view", "вид")
+K_DARK_MODE = Translation("dark mode", "ночной режим")
 
 E_FILE_IS_NOT_EXISTS = Translation(
     "file `{}` does not exists!",

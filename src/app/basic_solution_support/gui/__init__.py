@@ -6,7 +6,7 @@ from PIL.Image import Image
 from flet_multi_page import subPage
 from matplotlib import pyplot as plt
 
-from src.app.common_support.data_model import Item, PRECISION_VALUES, FUZZY_WIDTH
+from src.app.basic_solution_support.data_model import Item, PRECISION_VALUES, FUZZY_WIDTH
 from src.fuzzy import TriangleSymmetric
 from src.lang import *
 from src.mpl_main import NORMAL_FIG_PARAMS, final_patch, fig2pil
