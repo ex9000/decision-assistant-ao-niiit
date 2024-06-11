@@ -2,31 +2,28 @@ import flet as ft
 
 import src.app.distribute.provider as provider
 from src.app.common import ALLOWED_EXCEL_EXTS
-from src.app.distribute.data_model import Supply
+from src.app.distribute.data_model import Supply, Target
 from src.lang import *
 
 target_counter = 0
 
 
-def add_supply_card(s: Supply, lv: ft.ListView):
+def add_target_card(t: Target, lv: ft.ListView):
     def switch_enabled(enabled: bool):
-        s.enabled = enabled
+        t.enabled = enabled
 
     def change_name(name: str):
-        s.name = name
+        t.name = name
 
-    def change_potential(potential: float):
-        s.potential = potential
+    def change_health(health: float):
+        t.health = health
 
-    def change_amount(amount: int):
-        s.amount = amount
-
-    def change_price(price: float):
-        s.price = price
+    def change_priority(priority: int):
+        t.priority = priority
 
     def remove():
         lv.controls.remove(card)
-        provider.supplies.remove(s)
+        provider.supplies.remove(t)
         lv.update()
 
     card = ft.Card(
@@ -34,41 +31,32 @@ def add_supply_card(s: Supply, lv: ft.ListView):
             alignment=ft.MainAxisAlignment.START,
             controls=[
                 ft.Switch(
-                    value=s.enabled,
+                    value=t.enabled,
                     on_change=lambda e: switch_enabled(e.control.value),
                 ),
                 ft.TextField(
-                    value=s.name,
-                    hint_text=DISTRIBUTE.SUPPLY.K_NAME.capitalize(),
-                    tooltip=DISTRIBUTE.SUPPLY.K_NAME.capitalize(),
+                    value=t.name,
+                    hint_text=DISTRIBUTE.TARGET.K_NAME.capitalize(),
+                    tooltip=DISTRIBUTE.TARGET.K_NAME.capitalize(),
                     on_change=lambda e: change_name(e.control.value),
                 ),
                 ft.TextField(
-                    value=str(s.potential),
+                    value=str(t.health),
                     width=200,
-                    icon=ft.icons.ROCKET_LAUNCH,
-                    hint_text=DISTRIBUTE.SUPPLY.K_POTENTIAL.capitalize(),
-                    tooltip=DISTRIBUTE.SUPPLY.K_POTENTIAL.capitalize(),
+                    icon=ft.icons.SHIELD,
+                    hint_text=DISTRIBUTE.TARGET.K_HEALTH.capitalize(),
+                    tooltip=DISTRIBUTE.TARGET.K_HEALTH.capitalize(),
                     input_filter=ft.InputFilter(r"^[0-9]*\.?[0-9]*$"),
-                    on_change=lambda e: change_potential(float(e.control.value or "0")),
+                    on_change=lambda e: change_health(float(e.control.value or "0")),
                 ),
                 ft.TextField(
-                    value=str(s.amount),
+                    value=str(t.priority),
                     width=200,
-                    icon=ft.icons.DATASET,
-                    hint_text=DISTRIBUTE.SUPPLY.K_AMOUNT.capitalize(),
-                    tooltip=DISTRIBUTE.SUPPLY.K_AMOUNT.capitalize(),
+                    icon=ft.icons.FILTER_LIST,
+                    hint_text=DISTRIBUTE.TARGET.K_PRIORITY.capitalize(),
+                    tooltip=DISTRIBUTE.TARGET.K_PRIORITY.capitalize(),
                     input_filter=ft.InputFilter(r"^[0-9]*$"),
-                    on_change=lambda e: change_amount(int(e.control.value or "0")),
-                ),
-                ft.TextField(
-                    value=str(s.price),
-                    width=200,
-                    icon=ft.icons.MONEY,
-                    hint_text=DISTRIBUTE.SUPPLY.K_PRICE.capitalize(),
-                    tooltip=DISTRIBUTE.SUPPLY.K_PRICE.capitalize(),
-                    input_filter=ft.InputFilter(r"^[0-9]*\.?[0-9]*$"),
-                    on_change=lambda e: change_price(float(e.control.value or "0")),
+                    on_change=lambda e: change_priority(int(e.control.value or "0")),
                 ),
                 ft.IconButton(icon=ft.icons.DELETE, on_click=lambda e: remove()),
             ],
@@ -79,24 +67,24 @@ def add_supply_card(s: Supply, lv: ft.ListView):
     lv.update()
 
 
-def build_supply_container(c: ft.Container):
-    def new_supply(s: Supply = None):
+def build_target_container(c: ft.Container):
+    def new_supply(t: Target = None):
         global target_counter
-        weapon_counter += 1
-        if s is None:
-            s = Supply(K_WEAPON.capitalize() + f" {weapon_counter}", 2.5, 10, 1.05)
-            provider.supplies.append(s)
-        add_supply_card(s, list_view)
+        target_counter += 1
+        if t is None:
+            t = Supply(K_WEAPON.capitalize() + f" {target_counter}", 2.5, 10, 1.05)
+            provider.targets.append(t)
+        add_target_card(t, list_view)
 
     def on_picked_file(r: ft.FilePickerResultEvent):
         if not r.files:
             return
 
-        provider.load_supplies(r.files[0].path)
+        provider.load_targets(r.files[0].path)
 
         list_view.controls.clear()
-        for s in provider.supplies:
-            new_supply(s)
+        for t in provider.targets:
+            new_supply(t)
 
         c.page.dialog = ft.AlertDialog(title=ft.Text(K_DATA_LOADED.capitalize()))
         c.page.dialog.open = True
@@ -106,7 +94,7 @@ def build_supply_container(c: ft.Container):
         if not r.path:
             return
 
-        provider.save_supplies(r.path)
+        provider.save_targets(r.path)
 
         c.page.dialog = ft.AlertDialog(title=ft.Text(K_DATA_SAVED.capitalize()))
         c.page.dialog.open = True

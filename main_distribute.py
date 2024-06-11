@@ -2,6 +2,7 @@ import flet as ft
 
 from src.app.common import on_theme_mode_switch_change
 from src.app.distribute.gui.supply import build_supply_container
+from src.app.distribute.gui.target import build_target_container
 from src.lang import *
 
 
@@ -34,6 +35,9 @@ def window(page: ft.Page):
     supply = ft.Container()
     build_supply_container(supply)
 
+    target = ft.Container()
+    build_target_container(target)
+
     tabs = ft.Tabs(
         animation_duration=300,
         expand=True,
@@ -46,12 +50,7 @@ def window(page: ft.Page):
             ft.Tab(
                 icon=ft.icons.GPS_FIXED,
                 text=DISTRIBUTE.TARGET.K_FILE_NAME.capitalize(),
-                content=ft.Container(
-                    content=ft.Image(
-                        "./images/item.png", fit=ft.ImageFit.FIT_HEIGHT, height=200
-                    ),
-                    alignment=ft.alignment.center,
-                ),
+                content=target,
             ),
             ft.Tab(
                 icon=ft.icons.CHECKLIST,
