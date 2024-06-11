@@ -5,7 +5,7 @@ from src.app.common import ALLOWED_EXCEL_EXTS
 from src.app.distribute.data_model import Supply
 from src.lang import *
 
-target_counter = 0
+weapon_counter = 0
 
 
 def add_supply_card(s: Supply, lv: ft.ListView):
@@ -81,9 +81,9 @@ def add_supply_card(s: Supply, lv: ft.ListView):
 
 def build_supply_container(c: ft.Container):
     def new_supply(s: Supply = None):
-        global target_counter
-        weapon_counter += 1
+        global weapon_counter
         if s is None:
+            weapon_counter += 1
             s = Supply(K_WEAPON.capitalize() + f" {weapon_counter}", 2.5, 10, 1.05)
             provider.supplies.append(s)
         add_supply_card(s, list_view)
@@ -106,7 +106,10 @@ def build_supply_container(c: ft.Container):
         if not r.path:
             return
 
-        provider.save_supplies(r.path)
+        p = r.path
+        if not p.endswith(".xlsx"):
+            p += ".xlsx"
+        provider.save_supplies(p)
 
         c.page.dialog = ft.AlertDialog(title=ft.Text(K_DATA_SAVED.capitalize()))
         c.page.dialog.open = True

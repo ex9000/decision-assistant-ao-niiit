@@ -1,6 +1,6 @@
 import flet as ft
 
-ALLOWED_EXCEL_EXTS = ["xls", "xlsx", "xlsm", "xlsb", "odf", "ods", "odt"]
+ALLOWED_EXCEL_EXTS = ["xlsx"]  # ["xls", "xlsx", "xlsm", "xlsb", "odf", "ods", "odt"]
 
 
 def on_theme_mode_switch_change(e: ft.ControlEvent):

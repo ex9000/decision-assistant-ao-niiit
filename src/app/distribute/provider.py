@@ -86,7 +86,7 @@ def save_supplies(file_path: str):
 def save_solutions(file_path: str):
     df = solution2df()
     try:
-        df.to_excel(file_path, index=False)
+        df.to_excel(file_path)
     except Exception:
         p = Path(file_path).absolute()
         raise Exception(E_CANNOT_SAVE_FILE.format(p.as_posix()).capitalize())
@@ -106,12 +106,16 @@ def solution2df():
             price += x * u.price
         data[i, 0] = price
     data[-2, 1:] = total
-    data[-1, 0] = data[:, 0].sum()
+    data[-1, 0] = data[:-2, 0].sum()
     data[-1, 1:] = total * np.array([u.price for u in used])
-    return pd.DataFrame(
+    df = pd.DataFrame(
         data=data,
         index=[t.name for t in targets]
-              + [DISTRIBUTE.SOLUTION.K_TOTAL, DISTRIBUTE.SOLUTION.K_PRICE],
-        columns=[DISTRIBUTE.SOLUTION.K_NAME, DISTRIBUTE.SOLUTION.K_PRICE]
-                + [u.name for u in used],
+              + [
+                  DISTRIBUTE.SOLUTION.K_TOTAL.capitalize(),
+                  DISTRIBUTE.SOLUTION.K_PRICE.capitalize(),
+              ],
+        columns=[DISTRIBUTE.SOLUTION.K_PRICE.capitalize()] + [u.name for u in used],
     )
+    df.index.name = DISTRIBUTE.SOLUTION.K_NAME.capitalize()
+    return df

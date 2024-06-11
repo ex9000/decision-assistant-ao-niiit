@@ -76,15 +76,15 @@ c = np.array([s.price for s in supply] * covered)
 b_ub = np.array([s.amount for s in supply] + [-1] * k)
 a_ub = np.zeros((n + k, n * k))
 for i in range(n):
-    a_ub[i, i * k: (i + 1) * k] = 1
+    a_ub[i, i::n] = 1
 for i in range(k):
-    a_ub[i + n, i::k] = -1
+    a_ub[i + n, i * n: (i + 1) * n] = -1
 
 potential = np.array([s.potential for s in supply])
 b_eq = np.array([t.health for t in targets])
 a_eq = np.zeros((k, n * k))
 for i in range(k):
-    a_eq[i, i::k] = potential
+    a_eq[i, i * n: (i + 1) * n] = potential
 
 print(c.round(2))
 print(b_ub.round(2))
@@ -105,7 +105,7 @@ for i, t in enumerate(targets):
     print()
     print(f"{t.name} ({t.health})", ":")
     for j, s in enumerate(supply):
-        amount = x[i::k][j]
+        amount = x[i * n: (i + 1) * n][j]
         if np.isclose(amount, 0):
             continue
         print(f"\t{s.name} ({s.potential}): x{amount}")

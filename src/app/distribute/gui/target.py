@@ -2,7 +2,7 @@ import flet as ft
 
 import src.app.distribute.provider as provider
 from src.app.common import ALLOWED_EXCEL_EXTS
-from src.app.distribute.data_model import Supply, Target
+from src.app.distribute.data_model import Target
 from src.lang import *
 
 target_counter = 0
@@ -23,7 +23,7 @@ def add_target_card(t: Target, lv: ft.ListView):
 
     def remove():
         lv.controls.remove(card)
-        provider.supplies.remove(t)
+        provider.targets.remove(t)
         lv.update()
 
     card = ft.Card(
@@ -68,11 +68,11 @@ def add_target_card(t: Target, lv: ft.ListView):
 
 
 def build_target_container(c: ft.Container):
-    def new_supply(t: Target = None):
+    def new_target(t: Target = None):
         global target_counter
-        target_counter += 1
         if t is None:
-            t = Supply(K_WEAPON.capitalize() + f" {target_counter}", 2.5, 10, 1.05)
+            target_counter += 1
+            t = Target(K_TARGET.capitalize() + f" {target_counter}", 100, 1)
             provider.targets.append(t)
         add_target_card(t, list_view)
 
@@ -84,7 +84,7 @@ def build_target_container(c: ft.Container):
 
         list_view.controls.clear()
         for t in provider.targets:
-            new_supply(t)
+            new_target(t)
 
         c.page.dialog = ft.AlertDialog(title=ft.Text(K_DATA_LOADED.capitalize()))
         c.page.dialog.open = True
@@ -94,7 +94,10 @@ def build_target_container(c: ft.Container):
         if not r.path:
             return
 
-        provider.save_targets(r.path)
+        p = r.path
+        if not p.endswith(".xlsx"):
+            p += ".xlsx"
+        provider.save_targets(p)
 
         c.page.dialog = ft.AlertDialog(title=ft.Text(K_DATA_SAVED.capitalize()))
         c.page.dialog.open = True
@@ -135,7 +138,7 @@ def build_target_container(c: ft.Container):
     add_container = ft.Container(
         content=ft.FloatingActionButton(
             icon=ft.icons.ADD,
-            on_click=lambda e: new_supply(),
+            on_click=lambda e: new_target(),
         ),
     )
     add_container.margin = 5

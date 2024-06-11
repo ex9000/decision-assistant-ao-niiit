@@ -1,6 +1,7 @@
 import flet as ft
 
 from src.app.common import on_theme_mode_switch_change
+from src.app.distribute.gui.solution import build_solution_container
 from src.app.distribute.gui.supply import build_supply_container
 from src.app.distribute.gui.target import build_target_container
 from src.lang import *
@@ -10,7 +11,8 @@ def window(page: ft.Page):
     switch_lang(Lang.RU)
 
     page.title = K_TACTICAL_PLANNING.capitalize()
-    page.theme_mode = ft.ThemeMode.LIGHT
+    page.theme_mode = ft.ThemeMode.DARK
+    # page.theme_mode = ft.ThemeMode.LIGHT
 
     menubar = ft.MenuBar(
         expand=True,
@@ -38,6 +40,9 @@ def window(page: ft.Page):
     target = ft.Container()
     build_target_container(target)
 
+    solve = ft.Container()
+    build_solution_container(solve)
+
     tabs = ft.Tabs(
         animation_duration=300,
         expand=True,
@@ -55,12 +60,7 @@ def window(page: ft.Page):
             ft.Tab(
                 icon=ft.icons.CHECKLIST,
                 text=DISTRIBUTE.SOLUTION.K_FILE_NAME.capitalize(),
-                content=ft.Container(
-                    content=ft.Image(
-                        "./images/item.png", fit=ft.ImageFit.FIT_HEIGHT, height=200
-                    ),
-                    alignment=ft.alignment.center,
-                ),
+                content=solve,
             ),
         ],
     )
