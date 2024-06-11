@@ -1,45 +1,46 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from uuid import uuid4
 
 from src.lang import DISTRIBUTE
 
 
-@dataclass(frozen=True)
+@dataclass(unsafe_hash=True)
 class Supply:
-    name: str
-    potential: float
-    amount: int
-    price: float
-    enabled: bool = True
+    name: str = field(compare=False)
+    potential: float = field(compare=False)
+    amount: int = field(compare=False)
+    price: float = field(compare=False)
+    enabled: bool = field(default=True, compare=False)
+    _id: str = field(default_factory=uuid4)
 
     def as_dict(self, exclude_enabled=False):
         d = {
-            DISTRIBUTE.SUPPLY.K_NAME: self.name,
-            DISTRIBUTE.SUPPLY.K_POTENTIAL: self.potential,
-            DISTRIBUTE.SUPPLY.K_AMOUNT: self.amount,
-            DISTRIBUTE.SUPPLY.K_PRICE: self.price,
-            DISTRIBUTE.SUPPLY.K_ACTIVE: self.enabled,
+            DISTRIBUTE.SUPPLY.K_NAME.capitalize(): self.name,
+            DISTRIBUTE.SUPPLY.K_POTENTIAL.capitalize(): self.potential,
+            DISTRIBUTE.SUPPLY.K_AMOUNT.capitalize(): self.amount,
+            DISTRIBUTE.SUPPLY.K_PRICE.capitalize(): self.price,
         }
         if not exclude_enabled:
-            d[DISTRIBUTE.SUPPLY.K_ACTIVE] = self.enabled
+            d[DISTRIBUTE.SUPPLY.K_ACTIVE.capitalize()] = self.enabled
         return d
 
 
-@dataclass(frozen=True)
+@dataclass(unsafe_hash=True)
 class Target:
-    name: str
-    health: float
-    priority: int
-    enabled: bool = True
+    name: str = field(compare=False)
+    health: float = field(compare=False)
+    priority: int = field(compare=False)
+    enabled: bool = field(default=True, compare=False)
+    _id: str = field(default_factory=uuid4)
 
     def as_dict(self, exclude_enabled=False):
         d = {
-            DISTRIBUTE.TARGET.K_NAME: self.name,
-            DISTRIBUTE.TARGET.K_HEALTH: self.health,
-            DISTRIBUTE.TARGET.K_PRIORITY: self.priority,
-            DISTRIBUTE.TARGET.K_ACTIVE: self.enabled,
+            DISTRIBUTE.TARGET.K_NAME.capitalize(): self.name,
+            DISTRIBUTE.TARGET.K_HEALTH.capitalize(): self.health,
+            DISTRIBUTE.TARGET.K_PRIORITY.capitalize(): self.priority,
         }
         if not exclude_enabled:
-            d[DISTRIBUTE.TARGET.K_ACTIVE] = self.enabled
+            d[DISTRIBUTE.TARGET.K_ACTIVE.capitalize()] = self.enabled
         return d
 
 

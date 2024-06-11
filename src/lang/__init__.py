@@ -50,6 +50,11 @@ K_TACTICAL_PLANNING = Translation("tactical planning", "тактическое �
 K_MENU = Translation("menu", "меню")
 K_VIEW = Translation("view", "вид")
 K_DARK_MODE = Translation("dark mode", "ночной режим")
+K_LOAD_FROM_FILE = Translation("load from file", "загрузить из файла")
+K_SAVE_TO_FILE = Translation("save to file", "сохранить в файл")
+K_WEAPON = Translation("weapon", "вооружение")
+K_DATA_LOADED = Translation("data loaded", "данные загружены")
+K_DATA_SAVED = Translation("data saved", "данные сохранены")
 
 E_FILE_IS_NOT_EXISTS = Translation(
     "file `{}` does not exists!",

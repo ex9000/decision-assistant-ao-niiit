@@ -1,13 +1,14 @@
 import flet as ft
 
 from src.app.common import on_theme_mode_switch_change
+from src.app.distribute.gui.supply import build_supply_container
 from src.lang import *
 
 
 def window(page: ft.Page):
     switch_lang(Lang.RU)
 
-    page.title = K_TACTICAL_PLANNING
+    page.title = K_TACTICAL_PLANNING.capitalize()
     page.theme_mode = ft.ThemeMode.LIGHT
 
     menubar = ft.MenuBar(
@@ -30,6 +31,9 @@ def window(page: ft.Page):
         ],
     )
 
+    supply = ft.Container()
+    build_supply_container(supply)
+
     tabs = ft.Tabs(
         animation_duration=300,
         expand=True,
@@ -37,12 +41,7 @@ def window(page: ft.Page):
             ft.Tab(
                 icon=ft.icons.WAREHOUSE,
                 text=DISTRIBUTE.SUPPLY.K_FILE_NAME.capitalize(),
-                content=ft.Container(
-                    content=ft.Image(
-                        "./images/item.png", fit=ft.ImageFit.FIT_HEIGHT, height=200
-                    ),
-                    alignment=ft.alignment.center,
-                ),
+                content=supply,
             ),
             ft.Tab(
                 icon=ft.icons.GPS_FIXED,

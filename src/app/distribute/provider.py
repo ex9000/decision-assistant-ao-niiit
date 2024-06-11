@@ -1,5 +1,6 @@
 # singleton
 from functools import partial
+from itertools import starmap
 from pathlib import Path
 
 import numpy as np
@@ -31,7 +32,7 @@ def load_targets(file_path: str):
 
     try:
         df = pd.read_excel(p)
-        targets = list(map(Target, df.itertuples(index=False, name=None)))
+        targets = list(starmap(Target, df.itertuples(index=False, name=None)))
     except Exception:
         raise Exception(E_CANNOT_PARSE_FILE.format(p.as_posix()).capitalize())
 
@@ -43,7 +44,7 @@ def load_supplies(file_path: str):
 
     try:
         df = pd.read_excel(p)
-        supplies = list(map(Supply, df.itertuples(index=False, name=None)))
+        supplies = list(starmap(Supply, df.itertuples(index=False, name=None)))
     except Exception:
         raise Exception(E_CANNOT_PARSE_FILE.format(p.as_posix()).capitalize())
 
@@ -68,7 +69,7 @@ def save_targets(file_path: str):
 def save_supplies(file_path: str):
     supplies.sort(key=lambda s: (not s.enabled, s.name))
     try:
-        if all(t.enabled for t in targets):
+        if all(s.enabled for s in supplies):
             df = pd.DataFrame(
                 map(partial(Supply.as_dict, exclude_enabled=True), supplies)
             )
