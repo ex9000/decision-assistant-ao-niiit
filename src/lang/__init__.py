@@ -57,6 +57,7 @@ K_TARGET = Translation("target", "цель")
 K_DATA_LOADED = Translation("data loaded", "данные загружены")
 K_DATA_SAVED = Translation("data saved", "данные сохранены")
 K_FIND_SOLUTION = Translation("find solution", "найти решение")
+K_ITEM_NUMBER = Translation("item #", "опция №")
 
 E_FILE_IS_NOT_EXISTS = Translation(
     "file `{}` does not exists!",

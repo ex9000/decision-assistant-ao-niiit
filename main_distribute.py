@@ -11,8 +11,8 @@ def window(page: ft.Page):
     switch_lang(Lang.RU)
 
     page.title = K_TACTICAL_PLANNING.capitalize()
-    page.theme_mode = ft.ThemeMode.DARK
-    # page.theme_mode = ft.ThemeMode.LIGHT
+    # page.theme_mode = ft.ThemeMode.DARK
+    page.theme_mode = ft.ThemeMode.LIGHT
 
     menubar = ft.MenuBar(
         expand=True,

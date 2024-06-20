@@ -4,10 +4,14 @@ import pandas as pd
 from matplotlib import pyplot as plt
 
 from src.algebra import make_covariance
-from src.app.basic_solution_support.data_model import Item, PRECISION_VALUES, FUZZY_WIDTH
+from src.app.basic_solution_support.data_model import (
+    Item,
+    PRECISION_VALUES,
+    FUZZY_WIDTH,
+)
 from src.app.basic_solution_support.gui import new_item_card
 from src.fuzzy import TriangleSymmetric
-from src.lang import K_INCOME, K_RISK, K_FRONTIER_SHARES
+from src.lang import *
 from src.mpl_corr import best_figsize, plot_matrix
 from src.mpl_main.figparams import (
     FigParams,
@@ -85,6 +89,8 @@ def corrs():
 
 
 def window(page: ft.Page):
+    switch_lang(Lang.RU)
+
     column = ft.Column(alignment=ft.MainAxisAlignment.CENTER)
 
     page.title = "СППР Аггрегация"
@@ -98,7 +104,7 @@ def window(page: ft.Page):
         page.update()
 
     def plus_click(e):
-        name = f"Item #{1 + len(items)}"
+        name = K_ITEM_NUMBER.capitalize() + f"{1 + len(items)}"
         if free:
             name = free.pop()
 
