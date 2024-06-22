@@ -54,7 +54,10 @@ class UndoRedo:
             for tm in self.history[: limit.LIMIT]:
                 self.versions[tm].counter -= 1
                 if self.versions[tm].counter == 0:
-                    del self.versions[tm]            self.history = self.history[limit.LIMIT :]self.pointer -= limit.LIMIT
+                    del self.versions[tm]
+
+            self.history = self.history[limit.LIMIT :]
+            self.pointer -= limit.LIMIT
 
     def _create_version(self, obj):
         tm = datetime.now()
