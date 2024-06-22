@@ -3,9 +3,14 @@ from typing import Protocol, Type
 
 from src.common import identity
 from . import manager
+from .basic import UndoRedoBase
 
 
 class UndoRedoProtocol(Protocol):
+    def has_undo(self) -> bool: ...
+
+    def has_redo(self) -> bool: ...
+
     def undo(self): ...
 
     def redo(self): ...
@@ -18,7 +23,12 @@ class UndoRedoProtocol(Protocol):
 
 
 def undoredo(key=identity, duplicate_check=True) -> Type[UndoRedoProtocol]:
-    class _InnerUndoRedo(UndoRedoProtocol):
+    class _InnerUndoRedo(UndoRedoBase):
+        def has_undo(self) -> bool:
+            return manager.has_undo(self, key=key)
+
+        def has_redo(self) -> bool:
+            return manager.has_undo(self, key=key)
 
         def undo(self):
             return manager.undo(self, key=key)

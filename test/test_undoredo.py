@@ -17,6 +17,11 @@ class ExtraData(Data):
     other_number: int
 
 
+@dataclass
+class DataList(undoredo(key=id)):
+    ds: list[Data]
+
+
 class TestUndoRedo(unittest.TestCase):
     def test_undo(self):
         d = Data(1, "abc")
@@ -129,3 +134,29 @@ class TestUndoRedo(unittest.TestCase):
             vals.append(d.number)
 
         assert vals == list(reversed(range(80, 95))) + [80]
+
+    def test_nested(self):
+        d1 = Data(1, "abc")
+        d1.commit()
+
+        d2 = Data(2, "xyz")
+        d2.commit()
+
+        dl = DataList([d1, d2])
+        dl.commit()
+
+        for i, x in enumerate("one"):
+            d1.number = i
+            d1.text = x
+            d1.commit()
+
+        d1.number = 42
+        d1.text = "answer"
+        d1.commit()
+
+        dl.commit()
+
+        assert dl.ds[0] == Data(42, "answer")
+
+        dl.undo()
+        assert dl.ds[0] == Data(1, "abc")
