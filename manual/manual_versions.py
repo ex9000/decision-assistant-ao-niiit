@@ -13,9 +13,8 @@ class Point:
     y: int
 
 
-@undoredo(key=lambda x: x._id)
 @dataclass
-class Line:
+class Line(undoredo(key=lambda x: x._id)):
     a: Point
     b: Point
     _id: UUID = field(default_factory=lambda: uuid4())

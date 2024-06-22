@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import overload, Protocol, Callable, TYPE_CHECKING
+from typing import Protocol, Type
 
 from src.common import identity
 from . import manager
@@ -17,33 +17,22 @@ class UndoRedoProtocol(Protocol):
     def snapshots(self) -> list[datetime]: ...
 
 
-@overload
-def undoredo[T](cls) -> UndoRedoProtocol | T: ...
+def undoredo(*, key=identity, duplicate_check=True) -> Type[UndoRedoProtocol]:
+    class _InnerUndoRedo(UndoRedoProtocol):
 
+        def undo(self):
+            return manager.undo(self, key=key)
 
-@overload
-def undoredo[
-T
-](*, key=identity, duplicate_check=True) -> Callable[[T], UndoRedoProtocol | T]: ...
+        def redo(self):
+            return manager.redo(self, key=key)
 
+        def commit(self):
+            return manager.commit(self, key=key, duplicate_check=duplicate_check)
 
-def undoredo(cls=None, *, key=identity, duplicate_check=True):
-    if cls is None:
-        # noinspection PyArgumentList
-        return lambda clazz: undoredo(clazz, key=key, duplicate_check=duplicate_check)
+        def rollback(self, tm: datetime):
+            return manager.rollback(self, tm, key=key)
 
-    if TYPE_CHECKING:  # tweak
-        return type(cls.__name__, (UndoRedoProtocol, cls), {})
+        def snapshots(self) -> list[datetime]:
+            return manager.snapshots(self)
 
-    setattr(
-        cls,
-        "commit",
-        lambda self: manager.commit(self, key=key, duplicate_check=duplicate_check),
-    )
-
-    setattr(cls, "undo", lambda self: manager.undo(self, key=key))
-    setattr(cls, "redo", lambda self: manager.redo(self, key=key))
-    setattr(cls, "snapshots", lambda self: manager.snapshots(self, key=key))
-    setattr(cls, "rollback", lambda self, tm: manager.rollback(self, tm, key=key))
-
-    return cls
+    return _InnerUndoRedo
