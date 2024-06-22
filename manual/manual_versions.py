@@ -45,3 +45,9 @@ for _ in range(4):
 for _ in range(4):
     line.redo()
     print("redo", line)
+
+sp = line.snapshots()
+print(sp)
+
+line.rollback(sp[-2])
+print(sp[-1], line)

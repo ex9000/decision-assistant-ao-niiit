@@ -17,7 +17,7 @@ class UndoRedoProtocol(Protocol):
     def snapshots(self) -> list[datetime]: ...
 
 
-def undoredo(*, key=identity, duplicate_check=True) -> Type[UndoRedoProtocol]:
+def undoredo(key=identity, duplicate_check=True) -> Type[UndoRedoProtocol]:
     class _InnerUndoRedo(UndoRedoProtocol):
 
         def undo(self):
@@ -33,6 +33,6 @@ def undoredo(*, key=identity, duplicate_check=True) -> Type[UndoRedoProtocol]:
             return manager.rollback(self, tm, key=key)
 
         def snapshots(self) -> list[datetime]:
-            return manager.snapshots(self)
+            return manager.snapshots(self, key=key)
 
     return _InnerUndoRedo

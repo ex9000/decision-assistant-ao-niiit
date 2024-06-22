@@ -4,7 +4,6 @@ from datetime import datetime
 from typing import Any
 
 from . import limit
-from ..common import find_last_occurrence
 
 
 @dataclass
@@ -42,7 +41,7 @@ class UndoRedo:
             self.pointer += 1
 
     def rollback(self, tm: datetime):
-        self.pointer = find_last_occurrence(tm, self.history)
+        self.pointer = self.history.index(tm)
 
     def snapshots(self) -> list[datetime]:
         return sorted(self.versions.keys(), reverse=True)
@@ -55,9 +54,7 @@ class UndoRedo:
             for tm in self.history[: limit.LIMIT]:
                 self.versions[tm].counter -= 1
                 if self.versions[tm].counter == 0:
-                    del self.versions[tm]
-            self.history = self.history[limit.LIMIT:]
-            self.pointer -= limit.LIMIT
+                    del self.versions[tm]            self.history = self.history[limit.LIMIT :]self.pointer -= limit.LIMIT
 
     def _create_version(self, obj):
         tm = datetime.now()
