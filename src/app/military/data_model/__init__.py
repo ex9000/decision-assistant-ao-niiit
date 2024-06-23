@@ -22,8 +22,8 @@ class FormItem(EditableDataModel):
     text: str
     description: str
     group: FormGroup | None
-    is_negative: bool
     options: list[AnswerOption]
+    is_negative: bool
 
 
 @dataclass
