@@ -1,6 +1,10 @@
 number = int | float
 
 
+def nop(*args, **kwargs):
+    pass
+
+
 def identity(x):
     return x
 

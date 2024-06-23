@@ -58,6 +58,27 @@ K_DATA_LOADED = Translation("data loaded", "данные загружены")
 K_DATA_SAVED = Translation("data saved", "данные сохранены")
 K_FIND_SOLUTION = Translation("find solution", "найти решение")
 K_ITEM_NUMBER = Translation("item #", "опция №")
+K_OLDER = Translation("older", "старее")
+K_NEWER = Translation("newer", "новее")
+K_SAVE = Translation("save", "сохранить")
+
+K_SHORT_NAME = Translation("short name", "краткое наименование")
+K_OPTION_SHORT_NAME_HINT = Translation(
+    "the name that will be displayed in the questionnaire",
+    "название, которое будет отображено в анкете",
+)
+
+K_DESCRIPTION = Translation("description", "описание")
+K_OPTION_DESCRIPTION_HINT = Translation(
+    "hint that will be displayed in the questionnaire",
+    "подсказка, которая будет отображаться в анкете",
+)
+
+K_CRITERIA = Translation("criteria", "критерии")
+K_OPTION_CRITERIA_HINT = Translation(
+    "how do you know if this option is appropriate?",
+    "как понять, что данная опция является подходящей?",
+)
 
 E_FILE_IS_NOT_EXISTS = Translation(
     "file `{}` does not exists!",

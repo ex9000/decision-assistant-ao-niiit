@@ -17,18 +17,20 @@ class UndoRedoProtocol(Protocol):
 
     def commit(self): ...
 
+    def get_tm(self): ...
+
     def rollback(self, tm: datetime): ...
 
     def snapshots(self) -> list[datetime]: ...
 
 
 def undoredo(key=identity, duplicate_check=True) -> Type[UndoRedoProtocol]:
-    class _InnerUndoRedo(UndoRedoBase):
+    class _InnerUndoRedo(UndoRedoBase, UndoRedoProtocol):
         def has_undo(self) -> bool:
             return manager.has_undo(self, key=key)
 
         def has_redo(self) -> bool:
-            return manager.has_undo(self, key=key)
+            return manager.has_redo(self, key=key)
 
         def undo(self):
             return manager.undo(self, key=key)
@@ -38,6 +40,9 @@ def undoredo(key=identity, duplicate_check=True) -> Type[UndoRedoProtocol]:
 
         def commit(self):
             return manager.commit(self, key=key, duplicate_check=duplicate_check)
+
+        def get_tm(self):
+            return manager.get_tm(self, key=key)
 
         def rollback(self, tm: datetime):
             return manager.rollback(self, tm, key=key)

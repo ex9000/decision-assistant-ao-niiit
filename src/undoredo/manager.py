@@ -46,7 +46,7 @@ def rollback(obj: UndoRedoBase, tm: datetime, key=identity):
 
 
 def snapshots(obj: UndoRedoBase, key=identity):
-    return _new_or_do(obj, key, lambda k: entities[k].snapshots())
+    return _new_or_do(obj, key, lambda k: entities[k].snapshots()) or [obj.undoredo_tm]
 
 
 def get_tm(obj: UndoRedoBase, key=identity):

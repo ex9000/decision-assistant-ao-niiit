@@ -1,5 +1,8 @@
 import flet as ft
 
+from src.app.military.data_model import AnswerOption
+from src.app.military.gui.forms import AnswerOptionEdit
+
 items = []
 free = set()
 
@@ -14,7 +17,9 @@ def window(page: ft.Page):
     # page.scroll = ft.ScrollMode.
 
     page.add(
-        ft.Image("./images/item.png", fit=ft.ImageFit.FIT_HEIGHT, height=200),
+        AnswerOptionEdit(
+            AnswerOption("short", "Main info", "# Main\n- the best", False)
+        ),
     )
     page.update()
 

@@ -1,21 +1,34 @@
-from dataclasses import dataclass, field
-from datetime import datetime
-from uuid import uuid4
+from dataclasses import dataclass
+
+from src.app.common.editable_data_model import EditableDataModel
 
 
-@dataclass(unsafe_hash=True)
-class AnswerOption:
-    text: str = field(compare=False)
-    comment: str = field(compare=False)
-    criteria: str = field(compare=False)
-    _tm: datetime = field(compare=False)
-    _id: str = field(default_factory=uuid4)
+@dataclass
+class AnswerOption(EditableDataModel):
+    short: str
+    info: str
+    criteria: str
+    disabled: bool
 
 
-@dataclass(unsafe_hash=True)
-class FormItem:
-    text: str = field(compare=False)
-    description: str = field(compare=False)
-    options: list[AnswerOption] = field(compare=False)
-    _tm: datetime = field(compare=False)
-    _id: str = field(default_factory=uuid4)
+@dataclass
+class FormGroup(EditableDataModel):
+    short: str
+    info: str
+
+
+@dataclass
+class FormItem(EditableDataModel):
+    text: str
+    description: str
+    group: FormGroup | None
+    is_negative: bool
+    options: list[AnswerOption]
+
+
+@dataclass
+class FormContent(EditableDataModel):
+    title: str
+    description: str
+    groups: list[FormGroup]
+    items: list[FormItem]
