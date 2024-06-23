@@ -3,6 +3,7 @@ from typing import Callable
 import flet as ft
 
 from src.common import nop
+from src.lang import *
 from src.undoredo import UndoRedoProtocol
 
 
@@ -13,17 +14,21 @@ class VersionControl[T: UndoRedoProtocol](ft.Row):
         self.callback = callback
 
         self.prev = ft.TextButton(
-            icon=ft.icons.UNDO,
-            text="Older",
-            on_click=self.click_prev,
+            icon=ft.icons.UNDO,            text = (K_OLDER.capitalize(),)on_click=self.click_prev,
         )
         self.versions = ft.Dropdown(value="actual", on_change=self.select_snapshot)
-        self.next = ft.TextButton(
-            content=ft.Row([ft.Text("Newer"), ft.Icon(name=ft.icons.REDO)]),
-            on_click=self.click_next,
+        self.next = ft.TextButton(            content = (ft.Row([ft.Text(K_NEWER.capitalize()), ft.Icon(name=ft.icons.REDO)]),)on_click=self.click_next,
         )
 
-        self.controls = [self.prev, self.versions, self.next]
+        self.controls = [
+            ft.Text(
+                K_VERSION.capitalize() + ":",
+                style=ft.TextThemeStyle.HEADLINE_MEDIUM,
+            ),
+            self.versions,
+            self.prev,
+            self.next,
+        ]
 
     def click_prev(self, *_):
         self.undoredo.undo()

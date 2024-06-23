@@ -61,6 +61,7 @@ K_ITEM_NUMBER = Translation("item #", "опция №")
 K_OLDER = Translation("older", "старее")
 K_NEWER = Translation("newer", "новее")
 K_SAVE = Translation("save", "сохранить")
+K_VERSION = Translation("version", "версия")
 
 K_SHORT_NAME = Translation("short name", "краткое наименование")
 K_OPTION_SHORT_NAME_HINT = Translation(
@@ -90,6 +91,32 @@ E_CANNOT_PARSE_FILE = Translation(
     "не удалось прочитать файл `{}`!",
 )
 E_CANNOT_SAVE_FILE = Translation("cannot save `{}`!", "не удалось сохранить файл `{}`!")
+
+
+class MILITARY:
+    class ANSWER_OPTION:
+        K_DEFAULT_SHORT_NAME = Translation(
+            "excellent",
+            "превосходно",
+        )
+        K_DEFAULT_DESCRIPTION = Translation(
+            "extreme positive assessment",
+            "крайне положительная оценка",
+        )
+        K_DEFAULT_CRITERIA = Translation(
+            """# Basic criteria
+- indicators are at least 90% of the maximum
+- it is impossible to achieve greater readiness
+
+### Additional
+- the consent of 2 or more persons with this assessment is desirable""",
+            """# Основные критерии
+- показатели составляют не менее 90% от максимальных
+- невозможно достичь большей готовности
+
+### Дополнительно
+- желательно согласие 2-х и более лиц с данной оценкой""",
+        )
 
 
 class DISTRIBUTE:

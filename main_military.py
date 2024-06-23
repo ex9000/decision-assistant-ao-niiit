@@ -2,13 +2,14 @@ import flet as ft
 
 from src.app.military.data_model import AnswerOption
 from src.app.military.gui.forms import AnswerOptionEdit
+from src.lang import *
 
 items = []
 free = set()
 
 
 def window(page: ft.Page):
-    column = ft.Column(alignment=ft.MainAxisAlignment.CENTER)
+    switch_lang(Lang.RU)
 
     page.title = "СППР Аггрегация"
     page.vertical_alignment = ft.MainAxisAlignment.START
@@ -18,7 +19,12 @@ def window(page: ft.Page):
 
     page.add(
         AnswerOptionEdit(
-            AnswerOption("short", "Main info", "# Main\n- the best", False)
+            AnswerOption(
+                MILITARY.ANSWER_OPTION.K_DEFAULT_SHORT_NAME.capitalize(),
+                MILITARY.ANSWER_OPTION.K_DEFAULT_DESCRIPTION.capitalize(),
+                str(MILITARY.ANSWER_OPTION.K_DEFAULT_CRITERIA),
+                False,
+            )
         ),
     )
     page.update()
