@@ -14,10 +14,16 @@ class VersionControl[T: UndoRedoProtocol](ft.Row):
         self.callback = callback
 
         self.prev = ft.TextButton(
-            icon=ft.icons.UNDO,            text = (K_OLDER.capitalize(),)on_click=self.click_prev,
+            icon=ft.icons.UNDO,
+            text=K_OLDER.capitalize(),
+            on_click=self.click_prev,
         )
         self.versions = ft.Dropdown(value="actual", on_change=self.select_snapshot)
-        self.next = ft.TextButton(            content = (ft.Row([ft.Text(K_NEWER.capitalize()), ft.Icon(name=ft.icons.REDO)]),)on_click=self.click_next,
+        self.next = ft.TextButton(
+            content=ft.Row(
+                [ft.Text(K_NEWER.capitalize()), ft.Icon(name=ft.icons.REDO)]
+            ),
+            on_click=self.click_next,
         )
 
         self.controls = [
