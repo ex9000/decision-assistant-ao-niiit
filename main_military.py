@@ -49,7 +49,7 @@ def window(page: ft.Page):
     )
 
     page.add(
-        FormItemEdit(fitem, [fgroup1, fgroup2, fgroup3]),
+        FormItemEdit(fitem),
     )
     page.update()
 

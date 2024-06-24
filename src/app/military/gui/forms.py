@@ -1,6 +1,6 @@
 import flet as ft
 
-from src.app.military.data_model import AnswerOption, FormItem, FormGroup
+from src.app.military.data_model import AnswerOption, FormItem
 from src.lang import *
 from .form_cards import AnswerOptionCard
 from .version_control import VersionControl
@@ -79,10 +79,10 @@ class AnswerOptionEdit(ft.Column):
 
 
 class FormItemEdit(ft.Column):
-    def __init__(self, form_item: FormItem, groups: list[FormGroup]):
+    def __init__(self, form_item: FormItem):
         super().__init__()
         self.form_item = form_item
-        self.groups = groups
+        self.group = form_item.group
 
         self.expand = True
 
@@ -95,12 +95,7 @@ class FormItemEdit(ft.Column):
         self.version_control = VersionControl(form_item, callback=self.update)
 
         self.text_edit = ft.TextField()
-        self.group_ddown = ft.Dropdown(
-            value=str(self.form_item.group.short),
-            options=[
-                ft.dropdown.Option(key=g.short, text=g.short) for g in self.groups
-            ],
-        )
+
         self.description_edit = ft.TextField(
             multiline=True,
             min_lines=3,
@@ -109,13 +104,15 @@ class FormItemEdit(ft.Column):
 
         self.reverse_bt = ft.FilledTonalButton(icon=ft.icons.SWAP_VERT, text="Reverse")
         self.best_rbt = ft.RadioGroup(
+            value="first best",
             content=ft.Row(
                 controls=[
                     ft.Radio(value="first best", label="first best"),
                     ft.Radio(value="last best", label="last best"),
                 ]
-            )
+            ),
         )
+        self.deleted_cb = ft.Checkbox(label="Show deleted")
 
         add_container = ft.Container(
             content=ft.FloatingActionButton(
@@ -129,7 +126,9 @@ class FormItemEdit(ft.Column):
                 add_container,
                 ft.ListView(
                     expand=True,
-                    controls=[AnswerOptionCard(opt) for opt in self.form_item.options],
+                    controls=[
+                        AnswerOptionCard(opt, "best") for opt in self.form_item.active
+                    ],
                 ),
             ],
             vertical_alignment=ft.CrossAxisAlignment.START,
@@ -141,14 +140,19 @@ class FormItemEdit(ft.Column):
                 alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
             ),
             self.text_edit,
-            self.group_ddown,
             self.description_edit,
             ft.Row(
+                alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
                 controls=[
-                    self.save_bt,
-                    self.reverse_bt,
-                    self.best_rbt,
-                ]
+                    ft.Row(
+                        controls=[
+                            self.save_bt,
+                            self.reverse_bt,
+                            self.best_rbt,
+                        ]
+                    ),
+                    self.deleted_cb,
+                ],
             ),
             self.options_list,
         ]

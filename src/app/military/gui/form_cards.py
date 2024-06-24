@@ -1,13 +1,29 @@
 import flet as ft
 
-from src.app.military.data_model import AnswerOption
+from src.app.military.data_model import AnswerOption, FormItem
 
 
 class AnswerOptionCard(ft.Card):
-    def __init__(self, answer_option: AnswerOption):
+    def __init__(self, answer_option: AnswerOption, form_item: FormItem):
         super().__init__()
 
         self.answer_option = answer_option
+        self.form_item = form_item
+        self.key = self.answer_option.uid.hex
+
+        self.title_row = ft.Row(
+            controls=[
+                ft.Text(
+                    self.answer_option.short,
+                    style=ft.TextThemeStyle.TITLE_LARGE,
+                )
+            ]
+        )
+
+        self.up_bt = ft.IconButton(icon=ft.icons.KEYBOARD_ARROW_UP)
+        self.top_bt = ft.IconButton(icon=ft.icons.KEYBOARD_DOUBLE_ARROW_UP)
+        self.down_bt = ft.IconButton(icon=ft.icons.KEYBOARD_ARROW_DOWN)
+        self.bottom_bt = ft.IconButton(icon=ft.icons.KEYBOARD_DOUBLE_ARROW_DOWN)
 
         self.content = ft.Container(
             padding=10,
@@ -17,26 +33,19 @@ class AnswerOptionCard(ft.Card):
                         controls=[
                             ft.Row(
                                 controls=[
-                                    ft.IconButton(icon=ft.icons.KEYBOARD_ARROW_UP),
-                                    ft.IconButton(
-                                        icon=ft.icons.KEYBOARD_DOUBLE_ARROW_UP
-                                    ),
+                                    self.up_bt,
+                                    self.top_bt,
                                 ]
                             ),
-                            ft.Text(
-                                self.answer_option.short,
-                                style=ft.TextThemeStyle.TITLE_LARGE,
-                            ),
+                            self.title_row,
                             ft.Text(
                                 self.answer_option.info,
                                 style=ft.TextThemeStyle.TITLE_SMALL,
                             ),
                             ft.Row(
                                 controls=[
-                                    ft.IconButton(icon=ft.icons.KEYBOARD_ARROW_DOWN),
-                                    ft.IconButton(
-                                        icon=ft.icons.KEYBOARD_DOUBLE_ARROW_DOWN
-                                    ),
+                                    self.down_bt,
+                                    self.bottom_bt,
                                 ]
                             ),
                         ],
