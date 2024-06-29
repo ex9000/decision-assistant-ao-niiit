@@ -30,16 +30,8 @@ class Probability(ABC):
 class Normal(Probability):
     __slots__ = "mu", "sigma2"
 
-    def __new__(cls, mean: number = 0, variance: number = 1) -> "Probability":
-        if variance == 0:
-            return mean
-
-        x = super().__new__(cls)
-        x.__init__(mean, variance)
-        return x
-
     def __init__(self, mean: number = 0, variance: number = 1):
-        assert variance > 0
+        assert variance >= 0
         self.mu = mean
         self.sigma2 = variance
 
@@ -92,4 +84,4 @@ class Normal(Probability):
         return f"𝓝(μ={self.mu}, σ²={self.sigma2})"
 
     def to_scipy_stat(self) -> rv_continuous:
-        return norm(self.mu, self.sigma2 ** 0.5)
+        return norm(self.mu, self.sigma2**0.5)
