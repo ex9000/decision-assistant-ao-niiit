@@ -19,43 +19,33 @@ from src.tsn_ssr import compose_system, solve_frontier
 
 np.random.seed(44)
 
-expected = np.array([1, 2, 3, 4, 0])
-dispersion = np.array([10, 1, 7, 8, 2])
-correlation = np.eye(5) + (1 - np.eye(5)) * np.random.uniform(-1, 1, size=(5, 5))
+expected = np.array([1, 2, 3.5, 4])
+dispersion = np.array([10, 10, 3, 8])
+correlation = np.eye(4) + (1 - np.eye(4)) * np.random.uniform(-1, 1, size=(4, 4))
 correlation = 0.5 * (correlation + correlation.T)
 # correlation[-1, :] = correlation[:, -1] = np.ones(5)
 
-minimal, maximal = 0.2, 1  # 0.5
+minimal, maximal = 0.19, 1  # 0.5
 
-ground_truth = False
-if ground_truth:
-    size = 4
-    subsets = list(chain(*map(lambda i: combinations(range(4), i), range(3))))
-    covariance = make_covariance(dispersion[:-1], correlation[:-1, :-1])
-    sysmatrix = compose_system(expected[:-1], covariance)
+size = 4
+subsets = list(chain(*map(lambda i: combinations(range(4), i), range(3))))
+covariance = make_covariance(dispersion, correlation)
+sysmatrix = compose_system(expected, covariance)
 
-    lower = np.full(size, minimal)
-    upper = np.full(size, maximal)
-else:
-    size = 5
-    subsets = list(chain(*map(lambda i: combinations(range(5), i), range(4))))
-    covariance = make_covariance(dispersion, correlation)
-    sysmatrix = compose_system(expected, covariance)
+lower = np.full(size, minimal)
+upper = np.full(size, maximal)
 
-    lower = np.full(size, minimal)
-    upper = np.full(size, maximal)
-
-    # lower[-1] = 0
-    # upper[-1] = 1
-
-xmin = ymin = 10 ** 100
-xmax = ymax = -(10 ** 100)
+xmin = ymin = 10**100
+xmax = ymax = -(10**100)
 dots = []
-for i in tqdm(range(10 ** 5)):
+
+
+for i in tqdm(range(3 * 10**5)):
     w = 5 ** (5 * np.random.uniform(size=size))
     for i in range(size):
-        if w.sum() == 0:
+        if np.sum(w > 0) < 3 or w.sum() == 0:
             break
+
         w /= w.sum()
         if np.any((w < minimal) & (w > 0)):
             w[w < minimal] = 0
@@ -69,6 +59,8 @@ for i in tqdm(range(10 ** 5)):
         dots.append([xpos, ypos[0]])
 
         w[w == (w[w > 0].min())] = 0
+
+print(f"{len(dots)=}")
 dots = np.array(dots).T
 
 free = []
@@ -121,20 +113,26 @@ zi = k(np.vstack([xi.flatten(), yi.flatten()])).reshape(xi.shape)
 zi -= zi.min()
 zi /= zi.max()
 # ax.contourf(xi, yi, zi, zorder=-2)
-ax.scatter(*dots, marker="d", zorder=-5)
+ax.scatter(*dots, marker="o", zorder=-5, color="pink")
 
-ax.scatter(expected, dispersion, zorder=50)
+for sp in ax.spines.values():
+    sp.set_visible(False)
+
+ax.axes.get_xaxis().set_visible(False)
+ax.axes.get_yaxis().set_visible(False)
+
+ax.scatter(expected, dispersion, marker="*", c="gold", s=300, zorder=50)
 for xmin, xmax, sol in free:
     rest = xs[(xs > xmin) & (xs < xmax)]
     if len(rest) < 2:
         continue
 
     weights = polyval(rest, sol)
-    ax.plot(rest, quadratic_form(covariance, weights), c="k", linewidth=4)
+    ax.plot(rest, quadratic_form(covariance, weights), c="k", linewidth=3)
 
     x, y = lowest_parabola_point(covariance, sol)
-    if xmin < x < xmax:
-        ax.scatter(x, y, marker="*", c="gold", s=100, zorder=100)
+    # if xmin < x < xmax:
+    #     ax.scatter(x, y, marker="*", c="gold", s=100, zorder=100)
 
 for xmin, xmax, sol in limited:
     rest = xs[(xs > xmin) & (xs < xmax)]
@@ -142,7 +140,10 @@ for xmin, xmax, sol in limited:
         continue
 
     weights = polyval(rest, sol)
-    ax.plot(rest, quadratic_form(covariance, weights), c="lime", linewidth=3, zorder=25)
+    xx = rest
+    yy = quadratic_form(covariance, weights)
+    ax.plot(xx, yy, c="lime", linewidth=2, zorder=25)
+    ax.scatter(xx, yy, marker="o", zorder=-5, color="pink")
 
 for xmin, xmax, sol in fixed:
     rest = xs[(xs > xmin) & (xs < xmax)]
@@ -150,9 +151,10 @@ for xmin, xmax, sol in fixed:
         continue
 
     weights = polyval(rest, sol)
-    ax.plot(
-        rest, quadratic_form(covariance, weights), c="royalblue", linewidth=3, zorder=35
-    )
+    xx = rest
+    yy = quadratic_form(covariance, weights)
+    ax.plot(xx, yy, c="royalblue", linewidth=2, zorder=35)
+    ax.scatter(xx, yy, marker="o", zorder=-5, color="pink")
 
 for xmin, xmax, sol in intermediate:
     rest = xs[(xs > xmin) & (xs < xmax)]
@@ -160,8 +162,9 @@ for xmin, xmax, sol in intermediate:
         continue
 
     weights = polyval(rest, sol)
-    ax.plot(
-        rest, quadratic_form(covariance, weights), c="tomato", linewidth=2, zorder=40
-    )
+    xx = rest
+    yy = quadratic_form(covariance, weights)
+    ax.plot(xx, yy, c="tomato", linewidth=1, zorder=40)
+    ax.scatter(xx, yy, marker="o", zorder=-5, color="pink")
 
 plt.show()

@@ -35,9 +35,9 @@ def solve_matrix(matrix: np.ndarray, constant_offset: np.ndarray = None) -> np.n
 
 
 def apply_gt_constraints(
-        solution: np.ndarray,
-        constraints: np.ndarray,
-        mask: np.ndarray = None,
+    solution: np.ndarray,
+    constraints: np.ndarray,
+    mask: np.ndarray = None,
 ) -> domain:
     """Finds allowed segment and critical variable indices"""
 
@@ -53,7 +53,7 @@ def apply_gt_constraints(
     assert mask.ndim == 1
     assert len(mask) == w
 
-    critical = (constraints[mask] - solution[0][mask]) / solution[1][mask]
+    critical = (constraints[mask] - solution[0][mask]) / (solution[1][mask] + 1.0e-100)
 
     low: float = critical[solution[1][mask] > 0].max()
     high: float = critical[solution[1][mask] < 0].min()
@@ -68,9 +68,9 @@ def apply_gt_constraints(
 
 
 def apply_lt_constraints(
-        solution: np.ndarray,
-        constraints: np.ndarray,
-        mask: np.ndarray = None,
+    solution: np.ndarray,
+    constraints: np.ndarray,
+    mask: np.ndarray = None,
 ) -> domain:
     """Finds allowed segment and critical variable indices"""
 
@@ -79,7 +79,7 @@ def apply_lt_constraints(
 
 
 def lowest_parabola_point(
-        matrix: np.ndarray, solution: np.ndarray
+    matrix: np.ndarray, solution: np.ndarray
 ) -> tuple[float, float]:
     """Finds the lowest parabola point - return and variance.
 
@@ -129,7 +129,7 @@ def quadratic_form(matrix: np.ndarray, weights: np.ndarray) -> np.ndarray:
 
 
 def frontier_derivation(
-        xs: np.ndarray, matrix: np.ndarray, solution: np.ndarray
+    xs: np.ndarray, matrix: np.ndarray, solution: np.ndarray
 ) -> np.ndarray:
     """
     Computes the derivative of the quadratic form.
@@ -151,7 +151,7 @@ def frontier_derivation(
 
 
 def make_covariance(dispersion: np.ndarray, correlation: np.ndarray) -> np.ndarray:
-    std = (dispersion ** 0.5).reshape((1, len(dispersion)))
+    std = (dispersion**0.5).reshape((1, len(dispersion)))
     return correlation * std * std.T
 
 

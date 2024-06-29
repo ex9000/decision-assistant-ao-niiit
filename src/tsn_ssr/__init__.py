@@ -12,44 +12,21 @@ from src.algebra import (
     frontier_derivation,
     lowest_parabola_point,
 )
+from src.common import number
 from src.fuzzy import TriangleSymmetric
 from src.probability import Normal
 
 
 def _expected_as_polynomial(tsn: TriangleSymmetric[Normal]) -> np.ndarray:
-    const = tsn.mode
-    coeff = tsn.fuzziness / 2
-
-    if tsn.scale is not None:
-        const *= tsn.scale.mu
-        coeff *= tsn.scale.mu
-
-    # DO NOT MOVE ANYTHING ABOVE THIS LINE
-    # ADDITION MUST FOLLOW MULTIPLICATION BY SCALE VALUE
-
-    if tsn.shift is not None:
-        const += tsn.shift.mu
-
-    return np.array([const, coeff])
+    return np.array([tsn.mode.mu, tsn.diameter.mu / 2])
 
 
 def tsn_expected_polynomials(array: list[TriangleSymmetric[Normal]]) -> np.ndarray:
     return np.stack([_expected_as_polynomial(fz) for fz in array]).T
 
 
-def _dispersion(tsn: TriangleSymmetric[Normal]) -> np.ndarray:
-    disp = tsn.mode + 1 / 12
-
-    if tsn.scale is not None:
-        disp *= tsn.scale.sigma2
-
-    # DO NOT MOVE ANYTHING ABOVE THIS LINE
-    # ADDITION MUST FOLLOW MULTIPLICATION BY SCALE VALUE
-
-    if tsn.shift is not None:
-        disp += tsn.shift.sigma2
-
-    return disp
+def _dispersion(tsn: TriangleSymmetric[Normal]) -> number:
+    return tsn.mode.sigma2 + tsn.diameter.sigma2 / 12
 
 
 def tsn_dispersion(array: list[TriangleSymmetric[Normal]]) -> np.ndarray:
@@ -72,9 +49,9 @@ def compose_system(expected: np.ndarray, covariance: np.ndarray) -> np.ndarray:
 
 
 def solve_frontier(
-        sysmatrix: np.ndarray,
-        fixed: dict[int, float] = None,
-        sum_constraint: float = 1,
+    sysmatrix: np.ndarray,
+    fixed: dict[int, float] = None,
+    sum_constraint: float = 1,
 ) -> np.ndarray:
     """Gets polynomial for a frontier"""
 
@@ -181,7 +158,7 @@ def efficient_portfolio_frontier_no_shorts(sysmatrix: np.ndarray):
             d = frontier_derivation(low, qf, poly)
 
             if is_float_less(low, left_border) or (
-                    np.isclose(low, left_border) and d < derivation
+                np.isclose(low, left_border) and d < derivation
             ):
                 left_border = low
                 derivation = d
@@ -210,8 +187,8 @@ def efficient_portfolio_frontier_no_shorts(sysmatrix: np.ndarray):
             result.append(new_vals)
         else:
             assert len(idx) != 1, (
-                    "All assets dropped before maximum return is reached"
-                    + f"\n{sysmatrix=}\n{result=}"
+                "All assets dropped before maximum return is reached"
+                + f"\n{sysmatrix=}\n{result=}"
             )
 
             hard_limit = result[-1]["segment"][1]
