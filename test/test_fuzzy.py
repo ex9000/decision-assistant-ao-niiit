@@ -8,12 +8,12 @@ class TestFuzzy(unittest.TestCase):
     def test_fuzzy(self):
         x = Normal(1, 2)
         y = Normal(3, 4)
-        z = TriangleSymmetric(5, 6)
+        z = TriangleSymmetric(0, 1)
 
         x *= 2
         y *= 3
-        z = 3 * (z - 1)
+        z = 2 * (z + 1)
 
         r = x + z * y
         self.assertIsNotNone(r)
-        self.assertEqual(Normal(29.0, 332.0), r.to_random(1, Measure.NECESSITY))
+        self.assertEqual(Normal(11.0, 188.0), r.to_random(1, Measure.NECESSITY))

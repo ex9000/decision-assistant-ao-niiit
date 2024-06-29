@@ -2,8 +2,6 @@ from abc import ABC, abstractmethod
 from enum import Enum, auto
 from typing import overload, Union
 
-import numpy as np
-
 from src.common import number
 from src.probability import Probability
 
@@ -39,30 +37,19 @@ class Fuzzy(ABC):
 
 
 class TriangleSymmetric[T: Probability](Fuzzy):
-    __slots__ = "left", "right", "mode", "shift", "scale"
+    __slots__ = "mode", "diameter"
 
-    def __init__(self, mode, fuzziness, shift: T = None, scale: T = None):
-        self.left = mode - fuzziness / 2
-        self.right = mode + fuzziness / 2
+    def __init__(self, mode: T, diameter: T):
         self.mode = mode
-
-        self.shift: T | None = shift
-        self.scale: T | None = scale
+        self.diameter = diameter
 
     @property
     def fuzziness(self):
-        return self.right - self.left
+        return 2 * self.diameter.to_scipy_stat().mean()
 
     def __mul__(self, other: Union[number, T]) -> "TriangleSymmetric":
-        if isinstance(other, Probability):
-            assert self.scale is None and self.shift is None
-            return TriangleSymmetric(self.mode, self.fuzziness, self.shift, other)
-
-        if isinstance(other, number):
-            shift = (self.shift * other) if self.shift is not None else None
-            return TriangleSymmetric(
-                self.mode * other, self.fuzziness * abs(other), shift, self.scale
-            )
+        if isinstance(other, Probability) or isinstance(other, number):
+            return TriangleSymmetric(self.mode * other, self.diameter * other)
 
         return NotImplemented
 
@@ -70,18 +57,8 @@ class TriangleSymmetric[T: Probability](Fuzzy):
         return self.__mul__(other)
 
     def __add__(self, other: Union[number, T]) -> "TriangleSymmetric":
-        if isinstance(other, Probability):
-            assert self.shift is None
-            return TriangleSymmetric(self.mode, self.fuzziness, other, self.scale)
-
-        if isinstance(other, number):
-            if np.isclose(other, 0, atol=1e-8):
-                return self
-
-            assert self.scale is None
-            return TriangleSymmetric(
-                self.mode + other, self.fuzziness, self.shift, self.scale
-            )
+        if isinstance(other, Probability) or isinstance(other, number):
+            return TriangleSymmetric(self.mode + other, self.diameter)
 
         return NotImplemented
 
@@ -101,15 +78,7 @@ class TriangleSymmetric[T: Probability](Fuzzy):
         return self * (1 / other)
 
     def _produce_random(self, factor: float) -> T:
-        assert self.shift is not None or self.scale is not None
-
-        if self.scale is None:
-            return self.shift + factor
-
-        if self.shift is None:
-            return self.scale * factor
-
-        return self.shift + self.scale * factor
+        return self.mode + self.diameter * factor / 2
 
     @overload
     def to_random(self, alpha: float, measure: Measure) -> T: ...
@@ -138,5 +107,4 @@ class TriangleSymmetric[T: Probability](Fuzzy):
             case _:
                 raise ValueError(f"Unknown measure {measure}")
 
-        val: float = np.interp(beta, (-1, 1), (self.left, self.right))
-        return self._produce_random(val)
+        return self._produce_random(beta)
