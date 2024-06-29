@@ -1,3 +1,5 @@
+from itertools import chain, combinations
+
 number = int | float
 
 
@@ -16,3 +18,11 @@ def assign(left, right):
 
 def find_last_occurrence[T](x: T, xs: list[T]):
     return len(xs) - 1 - xs[::-1].index(x)
+
+
+def subsets(size, smallest=0, biggest=None):
+    if biggest is None:
+        biggest = size
+    return chain(
+        *map(lambda i: combinations(range(size), i), range(smallest, biggest + 1))
+    )

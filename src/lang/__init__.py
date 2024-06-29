@@ -62,6 +62,8 @@ K_OLDER = Translation("older", "старее")
 K_NEWER = Translation("newer", "новее")
 K_SAVE = Translation("save", "сохранить")
 K_VERSION = Translation("version", "версия")
+K_EXPECTED_VALUE = Translation("expected value", "математическое ожидание")
+K_DISPERSION = Translation("dispersion", "дисперсия")
 
 K_SHORT_NAME = Translation("short name", "краткое наименование")
 K_OPTION_SHORT_NAME_HINT = Translation(

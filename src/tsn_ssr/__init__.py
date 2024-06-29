@@ -4,13 +4,12 @@ import numpy as np
 
 from src.algebra import (
     solve_matrix,
-    intersect_segments,
     apply_gt_constraints,
-    apply_lt_constraints,
     rest_mask,
     is_float_less,
     frontier_derivation,
     lowest_parabola_point,
+    is_float_lequal,
 )
 from src.common import number
 from src.fuzzy import TriangleSymmetric
@@ -129,22 +128,22 @@ def efficient_portfolio_frontier_no_shorts(sysmatrix: np.ndarray):
 
             mask = rest_mask(size, muted)
 
-            (low, high), dropouts = intersect_segments(
-                apply_gt_constraints(poly, np.zeros(size), mask),
-                apply_lt_constraints(poly, np.ones(size), mask),
-            )
+            (low, high), dropouts = apply_gt_constraints(poly, np.zeros(size), mask)
 
             # check if solution is required short selling
-            if low >= high:
+            if is_float_lequal(high, low):
                 continue  # no short selling
 
             # check if solution attached before hard limit
             if is_float_less(low, hard_limit):
                 continue  # not optimal solution
 
+            if result and is_float_less(result[-1]["segment"][1], low):
+                continue  # disjoint with last segment
+
             if new_vals is None:
                 left_border = low
-                derivation = frontier_derivation(low, qf, poly)
+                derivation, second = frontier_derivation(low, qf, poly)
                 approved = can
                 new_vals = {
                     "index": ix,
@@ -155,21 +154,28 @@ def efficient_portfolio_frontier_no_shorts(sysmatrix: np.ndarray):
                 }
                 continue  # check next solution
 
-            d = frontier_derivation(low, qf, poly)
+            d, dd = frontier_derivation(low, qf, poly)
 
-            if is_float_less(low, left_border) or (
-                np.isclose(low, left_border) and d < derivation
-            ):
-                left_border = low
-                derivation = d
-                approved = can
-                new_vals = {
-                    "index": ix,
-                    "segment": (low, high),
-                    "dropouts": dropouts,
-                    "poly": poly,
-                    "point": lowest_parabola_point(qf, poly),
-                }
+            if is_float_less(left_border, low):
+                continue
+
+            if np.isclose(low, left_border):
+                if is_float_less(derivation, d):
+                    continue
+                if d > 0 == is_float_less(second, dd):
+                    continue
+
+            left_border = low
+            second = dd
+            derivation = d
+            approved = can
+            new_vals = {
+                "index": ix,
+                "segment": (low, high),
+                "dropouts": dropouts,
+                "poly": poly,
+                "point": lowest_parabola_point(qf, poly),
+            }
 
         if new_vals:
             hard_limit = new_vals["segment"][0]
@@ -209,10 +215,7 @@ def efficient_portfolio_frontier_no_shorts(sysmatrix: np.ndarray):
 
             mask = rest_mask(size, muted)
 
-            (_, high), dropouts = intersect_segments(
-                apply_gt_constraints(poly, np.zeros(size), mask),
-                apply_lt_constraints(poly, np.ones(size), mask),
-            )
+            (_, high), dropouts = apply_gt_constraints(poly, np.zeros(size), mask)
 
             new_vals = {
                 "index": idx,

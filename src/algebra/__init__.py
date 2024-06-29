@@ -28,8 +28,12 @@ def solve_matrix(matrix: np.ndarray, constant_offset: np.ndarray = None) -> np.n
 
     solution = sp.linalg.solve(matrix, vector, assume_a="sym")[:-2, ...].T
 
-    assert (solution[1] > 0).any(), "at least one share must be increasing"
-    assert (solution[1] < 0).any(), "at least one share must be decreasing"
+    assert (
+        solution[1] > 0
+    ).any(), f"at least one share must be increasing\n{solution=}"
+    assert (
+        solution[1] < 0
+    ).any(), f"at least one share must be decreasing\n{solution=}"
 
     return solution
 
@@ -130,7 +134,7 @@ def quadratic_form(matrix: np.ndarray, weights: np.ndarray) -> np.ndarray:
 
 def frontier_derivation(
     xs: np.ndarray, matrix: np.ndarray, solution: np.ndarray
-) -> np.ndarray:
+) -> tuple[np.ndarray, float]:
     """
     Computes the derivative of the quadratic form.
     It is defined by the matrix 'matrix' and the 'solution' vectors.
@@ -147,7 +151,7 @@ def frontier_derivation(
     s = solution
 
     poly = 2 * (s @ m @ s[1])
-    return polyval(xs, poly)
+    return polyval(xs, poly), poly[1]
 
 
 def make_covariance(dispersion: np.ndarray, correlation: np.ndarray) -> np.ndarray:
@@ -166,11 +170,11 @@ def intersect_segments(*segments: domain) -> domain:
     i, j = -1, -1
 
     for (a, b), (ai, bj) in segments:
-        if a > left:
+        if is_float_less(left, a):
             left = a
             i = ai
 
-        if b < right:
+        if is_float_less(b, right):
             right = b
             j = bj
 
@@ -179,3 +183,7 @@ def intersect_segments(*segments: domain) -> domain:
 
 def is_float_less(x, y):
     return x < y and not np.isclose(x, y)
+
+
+def is_float_lequal(x, y):
+    return x < y or np.isclose(x, y)

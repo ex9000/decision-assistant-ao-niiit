@@ -41,7 +41,7 @@ def plot_shares_frontier(ax: Axes, expected, covariance, names: list[str], resul
 
     labeled = {i: False for i in indices}
     for idx, poly, (mn, mx), (x, y) in zip(
-            data["index"], data["poly"], data["segment"], data["point"]
+        data["index"], data["poly"], data["segment"], data["point"]
     ):
 
         ws = polyval(xs, poly)
@@ -77,9 +77,13 @@ def plot_shares_frontier(ax: Axes, expected, covariance, names: list[str], resul
                 ax.plot(args[0], args[2], c="black", linestyle="--", lw=0.7, zorder=5)
             outline = True
             if i in has_label:
-                ax.fill_between(*args, color=dcolors[i], label=names[i])
+                ax.fill_between(
+                    *args,
+                    color=dcolors[i % len(dcolors)],
+                    label=names[i] if i < len(names) else f"{i=}",
+                )
             else:
-                ax.fill_between(*args, color=dcolors[i])
+                ax.fill_between(*args, color=dcolors[i % len(dcolors)])
 
     # ax.legend()
     # ax.legend(loc="center left", bbox_to_anchor=(1, 0.5), fancybox=True, shadow=True)
