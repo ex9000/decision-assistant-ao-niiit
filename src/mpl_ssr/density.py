@@ -29,6 +29,7 @@ def plot_density(ax: Axes, ssr: TriangleSymmetric[Normal], precision=256):
     ]
 
     data = np.stack([_evaluate(xs, left, right) for left, right in pairs])
+    data = np.maximum(data, 0.01)
 
     ax.pcolormesh(*source, data, shading="gouraud", cmap="Greys")
     cs = ax.contour(*source, data, cmap="plasma")

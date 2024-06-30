@@ -37,19 +37,27 @@ class Fuzzy(ABC):
 
 
 class TriangleSymmetric[T: Probability](Fuzzy):
-    __slots__ = "mode", "diameter"
+    __slots__ = "shift", "scale", "shift", "scale"
 
-    def __init__(self, mode: T, diameter: T):
+    def __init__(self, mode: number, diameter: number, shift: T = 0, scale: T = 1):
         self.mode = mode
         self.diameter = diameter
 
+        self.shift = shift
+        self.scale = scale
+
     @property
     def fuzziness(self):
-        return 2 * self.diameter.to_scipy_stat().mean()
+        if isinstance(self.scale, number):
+            return self.diameter * self.scale
+
+        return self.diameter * self.scale.to_scipy_stat().mean()
 
     def __mul__(self, other: Union[number, T]) -> "TriangleSymmetric":
         if isinstance(other, Probability) or isinstance(other, number):
-            return TriangleSymmetric(self.mode * other, self.diameter * other)
+            return TriangleSymmetric(
+                self.mode, self.diameter, self.shift * other, self.scale * other
+            )
 
         return NotImplemented
 
@@ -58,7 +66,9 @@ class TriangleSymmetric[T: Probability](Fuzzy):
 
     def __add__(self, other: Union[number, T]) -> "TriangleSymmetric":
         if isinstance(other, Probability) or isinstance(other, number):
-            return TriangleSymmetric(self.mode + other, self.diameter)
+            return TriangleSymmetric(
+                self.mode, self.diameter, self.shift + other, self.scale
+            )
 
         return NotImplemented
 
@@ -78,7 +88,79 @@ class TriangleSymmetric[T: Probability](Fuzzy):
         return self * (1 / other)
 
     def _produce_random(self, factor: float) -> T:
-        return self.mode + self.diameter * factor / 2
+        return self.shift + self.scale * (self.mode + factor * self.diameter / 2)
+
+    @overload
+    def to_random(self, alpha: float, measure: Measure) -> T: ...
+    @overload
+    def to_random(self, beta: float) -> T: ...
+
+    def to_random(self, alpha: float, measure: Measure = None) -> T:
+        """
+        It is not correct to say `convert` fuzzy-value using measure.
+        ! It is STRONGLY ASSUMED that given random-value will be used to compare it GREATER OR EQUAL with some level.
+
+        pi {FUZZY >= level} >= alpha
+        nu {FUZZY >= level} >= alpha
+
+        beta -- is seamless transition from nu to pi. (their common point nu(0) == pi(1)).
+        beta [-1 .. 0] ~ nu [1 .. 0]
+        beta [0 .. 1] ~ pi [1 .. 0]
+        """
+        match measure:
+            case None:
+                beta = alpha
+            case Measure.POSSIBILITY:
+                beta = 1 - alpha
+            case Measure.NECESSITY:
+                beta = -alpha
+            case _:
+                raise ValueError(f"Unknown measure {measure}")
+
+        return self._produce_random(beta)
+
+
+class LRFuzzy[T: Probability](Fuzzy):
+    __slots__ = "central", "dleft", "dright"
+
+    def __init__(self, central: T, dleft: T, dright: T):
+        self.central = central
+        self.dleft = dleft
+        self.dright = dright
+
+    def __add__(self, other: Union[number, Probability]) -> "Fuzzy":
+        raise NotImplementedError
+
+    def __sub__(self, other: Union[number, Probability]) -> "Fuzzy":
+        raise NotImplementedError
+
+    def __mul__(self, other: Union[number, Probability]) -> "Fuzzy":
+        raise NotImplementedError
+
+    def __radd__(self, other: Union[number, Probability]) -> "Fuzzy":
+        raise NotImplementedError
+
+    def __rsub__(self, other: Union[number, Probability]) -> "Fuzzy":
+        raise NotImplementedError
+
+    def __rmul__(self, other: Union[number, Probability]) -> "Fuzzy":
+        raise NotImplementedError
+
+    def __neg__(self) -> "Fuzzy":
+        raise NotImplementedError
+
+    def __truediv__(self, other: number) -> "Fuzzy":
+        raise NotImplementedError
+
+    @property
+    def fuzziness(self):
+        return self.dleft.to_scipy_stat().mean() + self.dright.to_scipy_stat().mean()
+
+    def _produce_random(self, factor: float) -> T:
+        if factor > 0:
+            return self.central + self.dright * factor
+        else:
+            return self.central + self.dleft * factor
 
     @overload
     def to_random(self, alpha: float, measure: Measure) -> T: ...
