@@ -1,22 +1,18 @@
 import numpy as np
+import pandas as pd
 from matplotlib import pyplot as plt
-from numpy.polynomial.polynomial import polyval
-from tqdm import tqdm
 
 from src.algebra import (
     make_covariance,
-    rest_mask,
-    apply_gt_constraints,
-    quadratic_form,
 )
-from src.common import subsets
 from src.lang import *
-from src.mpl_main import NORMAL_FIG_PARAMS, final_patch, LegendType
-from src.mpl_shares import plot_shares_frontier
+from src.mpl_corr import plot_matrix
+from src.mpl_main import (
+    SQUARE_FIG_PARAMS,
+)
 from src.tsn_ssr import (
     compose_system,
     efficient_portfolio_frontier_no_shorts,
-    solve_frontier,
 )
 
 # (5, 15, 44) (5, 15, 43 back)
@@ -53,7 +49,7 @@ print(result)
 
 switch_lang(Lang.RU)
 
-fig, ax = NORMAL_FIG_PARAMS.init_ax_fig()
+fig, ax = SQUARE_FIG_PARAMS.init_ax_fig()
 
 
 names = [
@@ -82,32 +78,13 @@ names = [
     "Юрий",
     "Яков",
 ]
-plot_shares_frontier(ax, expected, covariance, names, result)
 
-xs = np.linspace(result[0]["segment"][0], result[-1]["segment"][1], 1000)
+df = pd.DataFrame(corr, columns=names[:size], index=names[:size])
+plot_matrix(ax, df, "{:+.0%}")
 
-plot_lines = False
-if plot_lines:
-    for grp in tqdm(list(subsets(size, biggest=size - 2))):
-        mask = rest_mask(size, list(grp))
-        sol = solve_frontier(system, {i: 0 for i in grp})
-        (left, right), *_ = apply_gt_constraints(sol, np.zeros(size), mask)
+print(f"{expected=}")
+print(f"{dispersion=}")
 
-        rest = xs[(xs > left) & (xs < right)]
-        weights = polyval(rest, sol)
-        ax.plot(rest, quadratic_form(covariance, weights), c="k", linewidth=0.2)
-
-
-final_patch(
-    ax,
-    legend=LegendType.OUTSIDE,
-    ax_labels=(K_EXPECTED_VALUE.title(), K_DISPERSION.title()),
-)
-
-ax.set_xticklabels([])
-ax.set_xticks([])
-ax.set_yticklabels([])
-ax.set_yticks([])
 
 fig.tight_layout()
 

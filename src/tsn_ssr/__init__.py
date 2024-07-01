@@ -17,7 +17,9 @@ from src.probability import Normal
 
 
 def _expected_as_polynomial(tsn: TriangleSymmetric[Normal]) -> np.ndarray:
-    return np.array([tsn.shift.mu, tsn.scale.mu / 2])
+    return np.array(
+        [tsn.shift.mu + tsn.scale.mu * tsn.mode, 0.5 * tsn.scale.mu * tsn.diameter]
+    )
 
 
 def tsn_expected_polynomials(array: list[TriangleSymmetric[Normal]]) -> np.ndarray:
@@ -25,7 +27,7 @@ def tsn_expected_polynomials(array: list[TriangleSymmetric[Normal]]) -> np.ndarr
 
 
 def _dispersion(tsn: TriangleSymmetric[Normal]) -> number:
-    return tsn.shift.sigma2 + tsn.scale.sigma2 / 12
+    return tsn.shift.sigma2 + tsn.scale.sigma2 * (tsn.mode**2 + tsn.diameter**2 / 12)
 
 
 def tsn_dispersion(array: list[TriangleSymmetric[Normal]]) -> np.ndarray:

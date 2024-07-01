@@ -24,6 +24,7 @@ class LegendType(Enum):
     DISABLED = auto()
     INSIDE = auto()
     OUTSIDE = auto()
+    LOC = auto()
 
 
 NORMAL_FIG_PARAMS = FigParams()
@@ -32,13 +33,14 @@ SQUARE_FIG_PARAMS = FigParams((5.0, 5.0), dpi=100)
 
 
 def final_patch(
-        ax: Axes,
-        /,
-        legend: LegendType = LegendType.DISABLED,
-        axes=True,
-        grid=True,
-        ax_labels: Tuple[str, str] = (None, None),
-        title: str = None,
+    ax: Axes,
+    /,
+    legend: LegendType = LegendType.DISABLED,
+    axes=True,
+    grid=True,
+    ax_labels: Tuple[str, str] = (None, None),
+    title: str = None,
+    legend_loc: str = "best",
 ):
     if not axes:
         ax.set_axis_off()
@@ -56,6 +58,8 @@ def final_patch(
             ax.legend(
                 loc="center left", bbox_to_anchor=(1, 0.5), fancybox=True, shadow=True
             )
+        case LegendType.LOC:
+            ax.legend(loc=legend_loc)
 
     if title:
         ax.set_title(title)

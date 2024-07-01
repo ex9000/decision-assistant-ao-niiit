@@ -4,6 +4,7 @@ from scipy.stats import rv_continuous
 
 from src.fuzzy import TriangleSymmetric, Measure
 from src.probability import Normal
+from .common import cmap_transparent2black
 from .plotting import prepare_plot
 
 
@@ -31,6 +32,6 @@ def plot_density(ax: Axes, ssr: TriangleSymmetric[Normal], precision=256):
     data = np.stack([_evaluate(xs, left, right) for left, right in pairs])
     data = np.maximum(data, 0.01)
 
-    ax.pcolormesh(*source, data, shading="gouraud", cmap="Greys")
+    ax.pcolormesh(*source, data, shading="nearest", cmap=cmap_transparent2black)
     cs = ax.contour(*source, data, cmap="plasma")
     ax.clabel(cs, inline=1, fontsize=10)

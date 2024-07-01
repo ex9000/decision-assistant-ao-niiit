@@ -71,9 +71,9 @@ def plot_shares_frontier(ax: Axes, expected, covariance, names: list[str], resul
         vals = vals.cumsum(axis=1) * hy * 0.90
 
         outline = False
-        for i in reversed(idx):
+        for i in idx:
             args = ([mn, mx], vals[..., i], vals[..., i + 1])
-            if outline:
+            if i != idx[-1]:
                 ax.plot(args[0], args[2], c="black", linestyle="--", lw=0.7, zorder=5)
             outline = True
             if i in has_label:

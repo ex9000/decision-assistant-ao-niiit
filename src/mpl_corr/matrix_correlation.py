@@ -28,9 +28,11 @@ def cluster_corr(corr_array, inplace=False):
     pandas.DataFrame or numpy.ndarray
         a NxN correlation matrix with the columns and rows rearranged
     """
+    # mx = copy(corr_array).to_numpy()
+    # mx *= 1 - np.eye(mx.shape[1])
     pairwise_distances = sch.distance.pdist(corr_array)
     linkage = sch.linkage(pairwise_distances, method="complete")
-    cluster_distance_threshold = pairwise_distances.max() / 2
+    cluster_distance_threshold = 0.5 * pairwise_distances.max()
     idx_to_cluster_array = sch.fcluster(
         linkage, cluster_distance_threshold, criterion="distance"
     )
@@ -44,16 +46,23 @@ def cluster_corr(corr_array, inplace=False):
     return corr_array[idx, :][:, idx]
 
 
-def plot_matrix(ax: Axes, matrix: pd.DataFrame):
+def plot_matrix(
+    ax: Axes,
+    matrix: pd.DataFrame,
+    values_format: str = None,
+    fontsize="medium",
+    clustering=True,
+    scale=1,
+):
     w, h = matrix.shape
-    if w == h:  # only if matrix is square
+    if clustering and w == h:  # only if matrix is square
         matrix = cluster_corr(matrix)
 
     drawn = ax.matshow(
         matrix,
         cmap="bwr",
-        vmin=-1,
-        vmax=1,
+        vmin=-scale,
+        vmax=scale,
         interpolation="none",
     )
 
@@ -70,3 +79,18 @@ def plot_matrix(ax: Axes, matrix: pd.DataFrame):
     # magic_kwargs make colorbar be the same size as matrix
     magic_kwargs = dict(fraction=0.046, pad=0.04)
     plt.colorbar(drawn, ax=ax, **magic_kwargs)
+
+    if values_format is not None:
+        # Loop over data dimensions and create text annotations.
+        h, w = matrix.shape
+        for i in range(h):
+            for j in range(w):
+                ax.text(
+                    j,
+                    i,
+                    values_format.format(matrix.iloc[i, j]),
+                    ha="center",
+                    va="center",
+                    color="w" if abs(matrix.iloc[i, j]) > 0.55 * scale else "black",
+                    fontsize=fontsize,
+                )
