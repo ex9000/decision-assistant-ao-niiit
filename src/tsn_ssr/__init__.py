@@ -1,5 +1,7 @@
 """Triangle Symmetric Normal Distribution Shift Scale Representation"""
 
+from dataclasses import dataclass
+
 import numpy as np
 
 from src.algebra import (
@@ -14,6 +16,37 @@ from src.algebra import (
 from src.common import number
 from src.fuzzy import TriangleSymmetric
 from src.probability import Normal
+
+
+@dataclass
+class SolutionPart:
+    index: tuple[int]
+    segment: tuple[float, float]
+    dropouts: tuple[int, int]
+    poly: np.ndarray
+    point: tuple[float, float]
+
+    @property
+    def left(self) -> float:
+        return self.segment[0]
+
+    @property
+    def right(self) -> float:
+        return self.segment[1]
+
+    @property
+    def left_id(self) -> int:
+        return self.dropouts[0]
+
+    @property
+    def right_id(self) -> int:
+        return self.dropouts[1]
+
+    def __getitem__(self, item):
+        return getattr(self, item)
+
+    def __setitem__(self, key, value):
+        setattr(self, key, value)
 
 
 def _expected_as_polynomial(tsn: TriangleSymmetric[Normal]) -> np.ndarray:
@@ -100,15 +133,17 @@ def solve_frontier(
     return result
 
 
-def efficient_portfolio_frontier_no_shorts(sysmatrix: np.ndarray):
+def efficient_portfolio_frontier_no_shorts(
+    sysmatrix: np.ndarray,
+) -> tuple[list[SolutionPart], bool]:
     expected = sysmatrix[-2, :-2]
     qf = sysmatrix[:-2, :-2]
     size = len(expected)
 
-    lowest = expected.argmin()
-    highest = expected.argmax()
+    lowest: int = int(expected.argmin())
+    highest: int = int(expected.argmax())
 
-    idx = [lowest]
+    idx = (lowest,)
     result = []
     black_list = set(tuple(idx))
     dropped_shares = set()
@@ -116,15 +151,17 @@ def efficient_portfolio_frontier_no_shorts(sysmatrix: np.ndarray):
     illbeback = False
     hard_limit = expected.min()
 
-    while idx != [highest]:
-        new_vals = None
+    while idx != (highest,):
+        new_vals: SolutionPart | None = None
 
         for can in set(range(size)) - set(idx):
-            ix = sorted(idx + [can])
-            if tuple(ix) in black_list:
+            # noinspection PyTypeChecker
+            ix: tuple[int] = tuple(sorted(list(idx) + [can]))
+
+            if ix in black_list:
                 continue
 
-            muted = sorted(set(range(size)) - set(ix))
+            muted: list[int] = sorted(set(range(size)) - set(ix))
             skip = {i: 0 for i in muted}
             poly = solve_frontier(sysmatrix, skip)
 
@@ -147,13 +184,13 @@ def efficient_portfolio_frontier_no_shorts(sysmatrix: np.ndarray):
                 left_border = low
                 derivation, second = frontier_derivation(low, qf, poly)
                 approved = can
-                new_vals = {
-                    "index": ix,
-                    "segment": (low, high),
-                    "dropouts": dropouts,
-                    "poly": poly,
-                    "point": lowest_parabola_point(qf, poly),
-                }
+                new_vals = SolutionPart(
+                    index=tuple(ix),
+                    segment=(low, high),
+                    dropouts=dropouts,
+                    poly=poly,
+                    point=lowest_parabola_point(qf, poly),
+                )
                 continue  # check next solution
 
             d, dd = frontier_derivation(low, qf, poly)
@@ -171,13 +208,13 @@ def efficient_portfolio_frontier_no_shorts(sysmatrix: np.ndarray):
             second = dd
             derivation = d
             approved = can
-            new_vals = {
-                "index": ix,
-                "segment": (low, high),
-                "dropouts": dropouts,
-                "poly": poly,
-                "point": lowest_parabola_point(qf, poly),
-            }
+            new_vals = SolutionPart(
+                index=ix,
+                segment=(low, high),
+                dropouts=dropouts,
+                poly=poly,
+                point=lowest_parabola_point(qf, poly),
+            )
 
         if new_vals:
             hard_limit = new_vals["segment"][0]
@@ -191,19 +228,19 @@ def efficient_portfolio_frontier_no_shorts(sysmatrix: np.ndarray):
             illbeback = illbeback or (approved in dropped_shares)
 
             idx = new_vals["index"]
-            black_list.add(tuple(idx))
-            result.append(new_vals)
+            black_list.add(idx)
         else:
             assert len(idx) != 1, (
                 "All assets dropped before maximum return is reached"
-                + f"\n{sysmatrix=}\n{result=}"
+                + f"\n{expected=}\n{lowest=}\n{highest=}\n{sysmatrix=}\n{result=}"
             )
 
             hard_limit = result[-1]["segment"][1]
             drop = result[-1]["dropouts"][1]
             dropped_shares.add(drop)
 
-            idx = sorted(set(idx) - {drop})
+            # noinspection PyTypeChecker
+            idx: tuple[int] = tuple(sorted(set(idx) - {drop}))
             black_list.add(tuple(idx))
 
             if len(idx) == 1:
@@ -219,17 +256,18 @@ def efficient_portfolio_frontier_no_shorts(sysmatrix: np.ndarray):
 
             (_, high), dropouts = apply_gt_constraints(poly, np.zeros(size), mask)
 
-            new_vals = {
-                "index": idx,
-                "segment": (
+            new_vals = SolutionPart(
+                index=idx,
+                segment=(
                     hard_limit,  # update left point
                     high,  # keep right point
                 ),
-                "dropouts": dropouts,
-                "poly": poly,
-                "point": lowest_parabola_point(qf, poly),
-            }
+                dropouts=dropouts,
+                poly=poly,
+                point=lowest_parabola_point(qf, poly),
+            )
 
-            result.append(new_vals)
+        assert new_vals is not None
+        result.append(new_vals)
 
     return result, illbeback
